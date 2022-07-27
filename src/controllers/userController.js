@@ -144,7 +144,7 @@ const createUser = async function (req, res) {
 
 
         let userregister = { fname, lname, email, profileImage, phone, password: hash, address }
-        console.log(userregister)
+      
         const userData = await userModel.create(userregister);
         return res.status(201).send({ status: true, message: "User created successfully✅🟢", data: userData });
     } catch (err) {
