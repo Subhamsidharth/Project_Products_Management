@@ -9,8 +9,13 @@ const saltRounds = 10;
 let nameRegex = /^[.a-zA-Z\s,-]+$/
 let emailRegex = /^[a-zA-Z]{1}[A-Za-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/
 let mobileRegex = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
+let priceRegex = /^[^\-]((\d+(\.\d*)?)|(\.\d+))$/
 //-------------------------------AWS--------------------------------------------------------
-
+function isImage(x){
+    const regEx = /\.(apng|avif|gif|jpg|jpeg|jfif|pjpeg|pjp|png|svg|webp)$/;    //source:https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+    return x.match(regEx);
+}
+//--------------------------------------------------------------------------------------------
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
     secretAccessKey: "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",
@@ -30,7 +35,7 @@ let uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            console.log(data)
+            // console.log(data)
             console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
@@ -60,7 +65,6 @@ const isValidScripts = function (title) {
 const createProduct = async (req, res) => {
 
     try {
-
         let files = req.files
         let data = req.body
         let {
@@ -77,7 +81,7 @@ const createProduct = async (req, res) => {
         if (!price) return res.status(400).send({ status: false, message: "Price is mandatory" })
         if (!currencyId) return res.status(400).send({ status: false, message: "CurrencyId is mandatory" })
         if (!currencyFormat) return res.status(400).send({ status: false, message: "CurrencyFormat is mandatory" })
-        if (!productImage) return res.status(400).send({ status: false, message: "ProductImage is mandatory" })
+        // if (!(files.productImage)) return res.status(400).send({ status: false, message: "ProductImage is mandatory" })
         
         //_Validation_\\
         if (!isValid(title))
@@ -85,9 +89,9 @@ const createProduct = async (req, res) => {
 
         if (!isValid(description))
             return res.status(400).send({ status: false, message: "Please enter valid description. ⚠️" });
-
-        // if (!/([0-9]{0,2}((.)[0-9]{0,2}))$/.test(price) || (price) !== Number )
-        //     return res.status(400).send({ status: false, message: "Please enter valid price. ⚠️" });
+            
+        if(!priceRegex.test(price))
+            return res.status(400).send({ status: false, message: "Please enter valid price. ⚠️" });
 
         if (currencyId !== "INR")
            return res.status(400).send({ status: false, message: "currencyId should be in INR. ⚠️" })
@@ -97,19 +101,37 @@ const createProduct = async (req, res) => {
 
         if (!isValid(style))
            return res.status(400).send({ status: false, message: "Please enter valid style. ⚠️"})
-               
+      
+        if((availableSizes) == 0 ) {
+            return res.status(400).send({status: false, message: "Please enter atleast one size. ⚠️"})
+        }
 
-        //---Duplicate_Validation---\\
+        if(availableSizes[0]==="[") availableSizes = availableSizes.substring(1,availableSizes.length-1)
+        availableSizes = availableSizes.toUpperCase().split(',').map(x=> x.trim())
+        // availableSizes = JSON.parse(availableSizes)
+        availableSizes = [...new Set(availableSizes)];
+        let check = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+        for(let i=0;i<availableSizes.length; i++){
+            if(!check.includes(availableSizes[i])){
+                return res.status(400).send({status: false, message: 'Size should be only in uppercase - S, XS, M, X, L, XXL, XL. ⚠️'})
+            
+            }
+        }
+
+       //---Duplicate_Validation---\\
         let duplicateTitle = await productModel.findOne({ title: title })
         if(duplicateTitle) return res.status(409).send({ status: false, message: "This title already exist" })
 
         if (!files || (files && files.length === 0)) {
             return res.status(400).send({ status: false, message: " Please Provide The Profile Image ⚠️" });
         }
+        if (!isImage(files[0].originalname))
+        return res.status(400).send({ status: false, message: "Please enter the Image in a Valid format. ⚠️" });
         let productImage = await uploadFile(files[0])
-        console.log(product)
-        let sendData = {title, description, price, currencyId, currencyFormat, productImage,
-            isFreeShipping, style, availableSizes, installments }
+
+        // console.log(profileImage)
+        let sendData = {title, description, price, currencyId, currencyFormat, 
+            productImage,isFreeShipping, style, availableSizes, installments }
 
         const createdDoc = await productModel.create(sendData)
         return res.status(201).send({ status: true, message: "Success", data: createdDoc })
@@ -117,21 +139,6 @@ const createProduct = async (req, res) => {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-// {"shipping":{"street":"22BakerSt.","city":"Gowtham","pincode":"110110"}
-// ,"billing":{"street":"22BakerSt.","city":"Gowtham","pincode":"110110"}}
-
-// price: {
-//     type: Number,
-//     required: true,
-//     trim: true
-//     // valid number/ decimal        // price: {number, mandatory, valid number/decimal},
-// },
-
-// productImage: {
-//     type: String,
-//     required: true // s3 link
-// },
-
 
 
 // ## Products API (_No authentication required_)
