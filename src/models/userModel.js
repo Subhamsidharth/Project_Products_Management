@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         required: true
-    }, 
+    },
     phone: {
         type: String,
         required: true,
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }, 
+    },
     address: {
         shipping: {
             street: {
@@ -69,3 +69,4 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 module.exports = mongoose.model('User', userSchema)
+
