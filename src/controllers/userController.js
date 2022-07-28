@@ -99,7 +99,7 @@ const getProfile = async function(req, res){        //authentication >> getProfi
 
 //---------------------------------------------API 4=>PUT /user/:userId/profile (Authentication and Authorization required)---------------------------------------//
 
-const updateUser = async function(req, res){                            //validateUser >> authentication >> authorisation >> updateUser
+const updateUser = async function(req, res){                            // authentication >> authorisation >>validateUser >> updateUser
     const data = req.body;
     const userId = req.params.userId
 
