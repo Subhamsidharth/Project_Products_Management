@@ -56,7 +56,7 @@ const createProduct = async (req, res) => {
         // availableSizes = JSON.parse(availableSizes)
         availableSizes = [...new Set(availableSizes)];
         let check = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-        for(let i=0;i<availableSizes.length; i++){
+        for(let i=0;i<availableSizes.length; i++){ 
             if(!check.includes(availableSizes[i])){
                 return res.status(400).send({status: false, message: 'Size should be only in uppercase - S, XS, M, X, L, XXL, XL. ⚠️'})
             

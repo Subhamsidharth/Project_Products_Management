@@ -48,14 +48,16 @@ const createUser = async function (req, res) {
         }
        
         let address=data.address
-        // console.log(address)
-        if (!address || typeof address !== "object") {
-            return res.status(400).send({ status: false, message: "Object of address is required. ⚠️" });
+        if (!data.address || !isNaN(data.address)) {
+            return res.status(400).send({ status: false, message: "Valid address is required" })
         }
-
-        // if (Object.keys(address).includes('address')) {
-        //     if (typeof address !== "object") return res.status(400).send({ status: false, message: "address should be an object" })}
-        address = JSON.parse(data.address)
+            try{
+              address = JSON.parse(data.address)
+            }catch(err){
+              console.log(err.message)
+             return res.status(400).send({status: false,  message: `Address should be in valid object format`})
+            }
+      
         if (!address.shipping || !address.billing) {
             return res.status(400).send({ status: false, message: "shipping and billing address required" })
 
@@ -183,7 +185,7 @@ const createUser = async function (req, res) {
     }
 };
 
-//---------------------------------------LogIn-------------------------------------------------------------------------
+//---------------------------------------LogIn----------------------------------------------------------------------------
 const userLogin = async (req, res) => {
     try {
         const body = req.body
