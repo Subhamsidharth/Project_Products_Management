@@ -29,7 +29,7 @@ let mobileRegex = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
 let validateStreet = /^[a-zA-Z0-9]/
 let validateCity = /^[a-zA-z',.\s-]{1,25}$/
 let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/    //must not start with 0,6 digits and space(optional) gm
-
+let priceRegex = /^[^\-]((\d+(\.\d*)?)|(\.\d+))$/
 //------------------------------------------------------------------------------------------------------------------------
 //image validation
 function isImage(x){
@@ -134,4 +134,7 @@ function trimAndUpperCase(x){
 
 
 
-module.exports = { isValid, isValidObjectId, isValidRequestBody,isFname, isLname, isEmail, isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase, isImage, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet }
+module.exports = { 
+    isValid, isValidObjectId, isValidRequestBody,isFname, isLname, isEmail, 
+    isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase, 
+    isImage, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet, priceRegex}
