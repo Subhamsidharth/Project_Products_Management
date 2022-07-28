@@ -6,6 +6,7 @@ const { authorisation, authentication } = require("../middleware/auth")
 const { validateUserPut } = require("../middleware/validation")
 
 
+
 //APIS for user
 router.post("/register", createUser);
 router.post("/login", userLogin);
@@ -14,8 +15,10 @@ router.get("/user/:userId/profile", authentication, getUserDetail)
 router.put('/user/:userId/profile', authentication, authorisation, validateUserPut, updateUser)
 
 //------------------------------------------------------------------------------------------------
-router.get("/products/:productId", productController.getProductsById)
+//APIS for product
+router.post("/products", productController.createProduct)
 
+router.get("/products/:productId", productController.getProductsById)
 
 
 
