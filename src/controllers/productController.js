@@ -24,5 +24,23 @@ const getProductsById = async (req, res) => {
     }
 }
 //-----------------------------------------------------DeleteApi--------------------------------------------------
+const deleteProduct = async (req, res) => {
+    try {
+        let ProductId = req.params.productId;
+        if (!isValidObjectId(ProductId)) {
+            return res.status(400).send({ status: false, message: "Invalid ProductId. ⚠☣" })
+        }
+        let data = await productModel.findOne({ _id: params, isDeleted: false });
+        if (!data) {
+            return res.status(404).send({ status: false, message: "This Product Data is already deleted Or Doesn't Exist" });
+        }
+        let deleteproduct = await productModel.findOneAndUpdate({ _id: params }, { isDeleted: true, deletedAt: Date() }, { new: true });
+        return res.status(200).send({ status: true, message: "Deleted Sucessfully. ♻✔", data: deleteproduct });
 
-module.exports={getProductsById}
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ message: err.message });
+    }
+};
+
+module.exports={getProductsById,deleteProduct}

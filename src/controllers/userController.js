@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt');
 const {uploadFile} =require("../aws/aws")
 const saltRounds = 10;
 const { isValid, isValidObjectId, isValidRequestBody, isImage, nameRegex, emailRegex, mobileRegex,validateStreet,validateCity,validatePincode } = require("../validators/validator")
-//-------------------------------AWS--------------------------------------------------------
 
 
 //------------------------------------Post Register Api-------------------------------------------------
@@ -90,8 +89,6 @@ const createUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "enter valid pincode in shipping" })
             }
         }
-
-
         let Bstreet = address.billing.street
         let Bcity = address.billing.city                             //billing
         let Bpincode = parseInt(address.billing.pincode)
