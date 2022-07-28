@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+//const userController=require("../controllers/userController")
+//const authMw= require("../middleware/auth")
+//const productController=require("../controllers/productController")
 const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const { authorisation, authentication } = require("../middleware/auth")
@@ -20,6 +23,9 @@ router.post("/products", productController.createProduct)
 
 router.get("/products/:productId", productController.getProductsById)
 
+//APIs for product
+router.put("/products/:productId",productController.updateProduct)
+
 
 
 
@@ -33,4 +39,5 @@ router.all("/**", function (req, res) {
 
 
 
-module.exports = router;
+module.exports=router;
+//module.exports = router;
