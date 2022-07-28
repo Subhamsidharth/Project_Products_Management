@@ -1,14 +1,10 @@
 const productModel = require('../models/productModel')
 
 const mongoose = require("mongoose")
-const jwt = require("jsonwebtoken");
-const bcrypt = require('bcrypt');
 const aws = require("aws-sdk");
-const saltRounds = 10;
+
 //--------------------------Regex------------------------------------------------------
-let nameRegex = /^[.a-zA-Z\s,-]+$/
-let emailRegex = /^[a-zA-Z]{1}[A-Za-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/
-let mobileRegex = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
+
 let priceRegex = /^[^\-]((\d+(\.\d*)?)|(\.\d+))$/
 //-------------------------------AWS--------------------------------------------------------
 function isImage(x){
@@ -139,20 +135,5 @@ const createProduct = async (req, res) => {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
-// ## Products API (_No authentication required_)
-// ### POST /products
-// - Create a product document from request body.
-// - Upload product image to S3 bucket and save image public url in document.
-// - __Response format__
-//   - _**On success**_ - Return HTTP status 201. Also return the product document.
-//    The response should be a JSON object like [this](#successful-response-structure)
-// status: true,
-// message: 'Success',
-// data: {
-// }
-//   - _**On error**_ - Return a suitable error message with a valid HTTP status code. \
-//   The response should be a JSON object like [this](#error-response-structure)
 
 module.exports = { createProduct }
