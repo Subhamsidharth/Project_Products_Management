@@ -62,7 +62,6 @@ const createProduct = async (req, res) => {
             
             }
         }
-
        //---Duplicate_Validation---\\
         let duplicateTitle = await productModel.findOne({ title: title })
         if(duplicateTitle) return res.status(409).send({ status: false, message: "This title already exist" })

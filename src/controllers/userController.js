@@ -46,9 +46,16 @@ const createUser = async function (req, res) {
         if (!data.address) {
             return res.status(400).send({ status: false, message: "address required" })
         }
-            let address = JSON.parse(data.address)
-          
+       
+        let address=data.address
+        // console.log(address)
+        if (!address || typeof address !== "object") {
+            return res.status(400).send({ status: false, message: "Object of address is required. ⚠️" });
+        }
 
+        // if (Object.keys(address).includes('address')) {
+        //     if (typeof address !== "object") return res.status(400).send({ status: false, message: "address should be an object" })}
+        address = JSON.parse(data.address)
         if (!address.shipping || !address.billing) {
             return res.status(400).send({ status: false, message: "shipping and billing address required" })
 
