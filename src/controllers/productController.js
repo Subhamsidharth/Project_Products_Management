@@ -1,61 +1,10 @@
 const productModel = require('../models/productModel')
 
 const mongoose = require("mongoose")
-const aws = require("aws-sdk");
+const {uploadFile} =require("../aws/aws")
 
-//--------------------------Regex------------------------------------------------------
+const { isValid, isValidObjectId, isValidRequestBody, isImage, priceRegex} = require("../validators/validator")
 
-let priceRegex = /^[^\-]((\d+(\.\d*)?)|(\.\d+))$/
-//-------------------------------AWS--------------------------------------------------------
-function isImage(x){
-    const regEx = /\.(apng|avif|gif|jpg|jpeg|jfif|pjpeg|pjp|png|svg|webp)$/;    //source:https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
-    return x.match(regEx);
-}
-//--------------------------------------------------------------------------------------------
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "Group70/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            // console.log(data)
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
-
-
-//-------------------------------------Validate--------------------------------------------------------
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    if(typeof value === "number") return false;
-    return true;
-};
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0;
-}
-const isValidObjectId = function (objectId) {
-    return mongoose.Types.ObjectId.isValid(objectId)
-}
-const isValidScripts = function (title) {
-    const scriptRegex = /^(?![0-9]*$)[A-Za-z0-9\s\-_,\.;:()]+$/
-    return scriptRegex.test(title)
-}
 
 //------------------------------------Post createProduct Api-------------------------------------------------
 const createProduct = async (req, res) => {
@@ -136,4 +85,27 @@ const createProduct = async (req, res) => {
     }
 }
 
-module.exports = { createProduct }
+
+//-------------------------------------------------------------getProduct---------------------------------
+const getProductsById = async (req, res) => {
+    try {
+        let productId = req.params.productId
+
+        if (!isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, message: "Please Provide a valid productId" });
+        }
+
+        let Product = await productModel.findOne({ _id: productId, isDeleted: false });
+        if (!Product) {
+            return res.status(404).send({ status: false, msg: "No Product Found" });
+        }
+        return res.status(200).send({ status: true, message: 'Product found successfully', data: Product });
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, msg: err.message });
+    }
+}
+//-----------------------------------------------------DeleteApi--------------------------------------------------
+
+module.exports={ createProduct, getProductsById}
+
