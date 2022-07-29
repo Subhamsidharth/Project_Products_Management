@@ -1,5 +1,5 @@
 const userModel = require("../models/userModel");
-// const emailValidator = require("email-validator");
+const emailValidator = require("email-validator");
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
@@ -27,10 +27,11 @@ const createUser = async function (req, res) {
         if (!nameRegex.test(lname))
             return res.status(400).send({ status: false, message: "lname should not be Alfanumeric ⚠️" })
         //------------------email------------
-        if (!isValid(email))
-            return res.status(400).send({ status: false, message: "Please enter the email. ⚠️" });
-        if (!emailRegex.test(email))
-            return res.status(400).send({ status: false, message: " Email should be in right format ⚠️" })
+        
+        if (!(emailValidator.validate(email))) 
+        return res.status(400).send({ status: false, message: "Email should be in right format ⚠️" })
+    
+       
         //------------Phone-------------------
         if (!isValid(phone))
             return res.status(400).send({ status: false, message: "Please enter the phonefield. ⚠️" });
@@ -238,6 +239,8 @@ const getUserDetail = async function (req, res) {
 
         if (!isValidObjectId(userIdParams))
             return res.status(400).send({ status: false, message: "User Id is Not Valid" })
+            if (userIdParams !== req.userId )
+            return res.status(403).send({ Status: false, message: "UserId and token didn't Match. ⚠️" });
 
       
         const findUserDetail = await userModel.findOne({ _id: userIdParams })
@@ -249,28 +252,6 @@ const getUserDetail = async function (req, res) {
     }
 
 }
-//--------------------------------------
-// const getProfile = async function(req, res){        //authentication >> getProfile
-//     try{
-//         //retrieve userId
-//         const userId = req.params.userId;
-//         if(!userId) return res.status(400).send({status:false, message:"enter user id in url"})// handled by postman as well
-//         if(!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).send({status:false, message:"enter a valid user id in url path"})
-
-//         //authorisation
-//         const loggedInUserId = req.token.userId;
-//         if(loggedInUserId !== userId) return res.status(400).send({status:false, message:`user with id = ${loggedInUserId} is not allowed to view the profile of user with id = ${userId}`});
-
-//         //get data, response
-//         const profile = await userModel.findById(userId).select({__v:0});
-//         if(!profile) return res.status(404).send({status:false, message:"user profile not found"}); //not necessary
-//         return res.status(200).send({status:true, message:"User profile details", data:profile})
-
-//     }catch(err){
-//         console.log(err);
-//         return res.status(500).send({status:false, message:err.message})
-//     }
-// }
 //--------------------------------------------------------Update Api-----------------------------------------------------
 const updateUser = async function(req, res){                            //validateUser >> authentication >> authorisation >> updateUser
     const data = req.body;
