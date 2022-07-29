@@ -16,12 +16,16 @@ const validateUserPut = async function(req, res, next){
         let cityB       =     rest['address.billing.city'];
         let pincodeB    =     rest['address.billing.pincode'];
         if(address){
+        if(address.shipping){
             streetS     =     req.body['address.shipping.street']     =     address.shipping.street;
             cityS       =     req.body['address.shipping.city']       =     address.shipping.city;
             pincodeS    =     req.body['address.shipping.pincode']    =     address.shipping.pincode;
-            streetB     =     req.body['address.billing.street']      =     address.billing.street
+        }
+        if(address.billing){
+            streetB     =     req.body['address.billing.street']      =     address.billing.street;
             cityB       =     req.body['address.billing.city']        =     address.billing.city;
             pincodeB    =     req.body['address.billing.pincode']     =     address.billing.pincode;
+        }
         }                                                                                  
         
         const msg = {}; //validation of fields
@@ -69,5 +73,4 @@ const validateUserPut = async function(req, res, next){
 
 module.exports = {validateUserPut};
 //+91-8974569874, 8974569874
-
 

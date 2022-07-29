@@ -15,7 +15,7 @@ router.post("/register", createUser);
 router.post("/login", userLogin);
 router.get("/user/:userId/profile", authentication, getUserDetail)
 // router.put("/user/:userId/profile",authMw.authentication, updateUser)
-router.put('/user/:userId/profile', authentication, authorisation, validateUserPut, updateUser)
+router.put('/user/:userId/profile', authentication, authorisation, validateUserPut, updateUser) //tested: working
 
 //------------------------------------------------------------------------------------------------
 //APIS for product
