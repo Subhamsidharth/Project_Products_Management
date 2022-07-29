@@ -266,13 +266,7 @@ const getUserDetail = async function (req, res) {
 //         if(!profile) return res.status(404).send({status:false, message:"user profile not found"}); //not necessary
 //         return res.status(200).send({status:true, message:"User profile details", data:profile})
 
-//     }catch(err){
-//         console.log(err);
-//         return res.status(500).send({status:false, message:err.message})
-//     }
-// }
-//--------------------------------------------------------Update Api-----------------------------------------------------
-const updateUser = async function(req, res){                            //validateUser >> authentication >> authorisation >> updateUser
+const updateUser = async function(req, res){                            // authentication >> authorisation >>validateUser >> updateUser
     const data = req.body;
     const userId = req.params.userId
 
