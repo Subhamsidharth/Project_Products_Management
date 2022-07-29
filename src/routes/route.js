@@ -26,6 +26,8 @@ router.get("/products/:productId", productController.getProductsById)
 //APIs for product
 router.put("/products/:productId",productController.updateProduct)
 
+router.delete("/products/:productId",productController.deleteProduct)
+
 
 
 
