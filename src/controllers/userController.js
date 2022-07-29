@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const {uploadFile} =require("../aws/aws")
 const saltRounds = 10;
-const { isValid, isValidObjectId, isValidRequestBody, isImage, nameRegex, emailRegex, mobileRegex,validateStreet,validateCity,validatePincode } = require("../validators/validator")
+const { isValid, isValidObjectId, isValidRequestBody, isImage, nameRegex, mobileRegex,validateStreet,validateCity,validatePincode } = require("../validators/validator")
 
 
 //------------------------------------Post Register Api-------------------------------------------------
@@ -81,20 +81,20 @@ const createUser = async function (req, res) {
         let Scity = address.shipping.city
         let Spincode = parseInt(address.shipping.pincode)     //shipping
         if (Sstreet) {
-            let validateStreet = /^[a-zA-Z0-9]/
+            // let validateStreet = /^[a-zA-Z0-9]/
             if (!validateStreet.test(Sstreet)) {
                 return res.status(400).send({ status: false, message: "enter valid street name in shipping" })
             }
         }
 
         if (Scity) {
-            let validateCity = /^[a-zA-Z0-9]/
+            // let validateCity = /^[a-zA-Z0-9]/
             if (!validateCity.test(Scity)) {
                 return res.status(400).send({ status: false, message: "enter valid city name in shipping" })
             }
         }
         if (Spincode) {
-            let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
+            // let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
             if (!validatePincode.test(Spincode)) {
                 return res.status(400).send({ status: false, message: "enter valid pincode in shipping" })
             }
@@ -103,20 +103,20 @@ const createUser = async function (req, res) {
         let Bcity = address.billing.city                             //billing
         let Bpincode = parseInt(address.billing.pincode)
         if (Bstreet) {
-            let validateStreet = /^[a-zA-Z0-9]/
+            // let validateStreet = /^[a-zA-Z0-9]/
             if (!validateStreet.test(Bstreet)) {
                 return res.status(400).send({ status: false, message: "enter valid street name in shipping" })
             }
         }
 
         if (Bcity) {
-            let validateCity = /^[a-zA-Z0-9]/
+            // let validateCity = /^[a-zA-Z0-9]/
             if (!validateCity.test(Bcity)) {
                 return res.status(400).send({ status: false, message: "enter valid city name in shipping" })
             }
         }
         if (Bpincode) {
-            let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
+            // let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
             if (!validatePincode.test(Bpincode)) {
                 return res.status(400).send({ status: false, message: "enter valid pincode in shipping" })
             }

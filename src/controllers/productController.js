@@ -21,12 +21,12 @@ const createProduct = async (req, res) => {
          return res.status(400)
             .send({ status: false, message: "Bad Request, Please enter the details in the request body.❌🛑" });
       }
-      if (!title) return res.status(400).send({ status: false, message: "Title is mandatory" })
-      if (!description) return res.status(400).send({ status: false, message: "Description is mandatory" })
-      if (!price) return res.status(400).send({ status: false, message: "Price is mandatory" })
-      if (!currencyId) return res.status(400).send({ status: false, message: "CurrencyId is mandatory" })
-      if (!currencyFormat) return res.status(400).send({ status: false, message: "CurrencyFormat is mandatory" })
-      //   if (!files) return res.status(400).send({ status: false, message: "ProductImage is mandatory" })
+      // if (!title) return res.status(400).send({ status: false, message: "Title is mandatory" })
+      // if (!description) return res.status(400).send({ status: false, message: "Description is mandatory" })
+      // if (!price) return res.status(400).send({ status: false, message: "Price is mandatory" })
+      // if (!currencyId) return res.status(400).send({ status: false, message: "CurrencyId is mandatory" })
+      // if (!currencyFormat) return res.status(400).send({ status: false, message: "CurrencyFormat is mandatory" })
+      // //   if (!files) return res.status(400).send({ status: false, message: "ProductImage is mandatory" })
 
       //_Validation_\\
       if (!isValid(title))
@@ -46,22 +46,26 @@ const createProduct = async (req, res) => {
 
       if (!isValid(style))
          return res.status(400).send({ status: false, message: "Please enter valid style. ⚠️" })
-
+      if(installments){
+      // if (!isValid(installments))
+      //    return res.status(400).send({ status: false, message: "Please enter valid installments. ⚠️" })
+      if (!priceRegex.test(installments))
+         return res.status(400).send({ status: false, message: "Installments should be in Numeric positive value. ⚠️" });
+      }
       if ((availableSizes) == 0) {
          return res.status(400).send({ status: false, message: "Please enter atleast one size. ⚠️" })
       }
-      if (installments) {
-         if ((installments)==0)
-         return res.status(400).send({ status: false, message: "Please Gives some installments. ⚠️" })
+      // if (installments) {
+      //    if ((installments)==0)
+      //    return res.status(400).send({ status: false, message: "Please Gives some installments. ⚠️" })
 
-         if (!priceRegex.test(installments))
-         return res.status(400).send({ status: false, message: "Installments should be in positive value. ⚠️" });
-
-         const num = String(Number(installments));
-         if (num == 'NaN') {
-            return res.status(400).send({ status: false, message: "Please enter valid installments. ⚠️" })
-         }
-      }
+         
+//typeOf installments=== NaN
+      //    const num = String(Number(installments));
+      //    if (num == 'NaN') {
+      //       return res.status(400).send({ status: false, message: "Please enter valid installments. ⚠️" })
+      //    }
+      // }
 
       if (availableSizes[0] === "[") availableSizes = availableSizes.substring(1, availableSizes.length - 1)
       availableSizes = availableSizes.toUpperCase().split(',').map(x => x.trim())
