@@ -37,7 +37,7 @@ router.all("/**", function (req, res) {
         status: false,
         message: "The api you request is not available"
     })
-})
+})  //awesome
 
 
 
