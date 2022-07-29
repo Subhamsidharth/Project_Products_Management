@@ -83,6 +83,62 @@ const createProduct = async (req, res) => {
         res.status(500).send({ status: false, message: error.message })
     }
 }
+
+
+//------------------------------------------2nd product api : GET /products-----------------------------------------------------------//
+ /*
+- Returns all products in the collection that aren't deleted.
+  - __Filters__
+    - Size (The key for this filter will be 'size')
+    - Product name (The key for this filter will be 'name'). You should return all the products with name containing the substring recieved in this filter
+    - Price : greater than or less than a specific value. The keys are 'priceGreaterThan' and 'priceLessThan'. 
+    
+> **_NOTE:_** For price filter request could contain both or any one of the keys. For example the query in the request could look like { priceGreaterThan: 500, priceLessThan: 2000 } or just { priceLessThan: 1000 } )
+    
+  - __Sort__
+    - Sorted by product price in ascending or descending. The key value pair will look like {priceSort : 1} or {priceSort : -1}
+  _eg_ /products?size=XL&name=Nit%20grit
+ */
+
+const getProductsByQuery = async function(req, res){      
+   try {
+      let {size, name, priceGreaterThan, priceLessThan, priceSort} = req.query;
+
+      const invalid = {};  //validations
+      if(size) {   
+               size = [...new Set(size.toUpperCase().split(",").map((s)=>s.trim()))]; 
+               const _enum = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+               for(let i=0; i<size.length; i++){
+               if(_enum.indexOf(size[i]) === -1){
+                  invalid['size error'] = `enter size from these set of elements only : ${_enum}`;
+                  break;
+               }
+      }};
+      priceGreaterThan && (String(Number(priceGreaterThan)) === 'NaN') && (invalid["priceGreaterThan error"] = "invalid price format");   //ss
+      priceLessThan && (String(Number(priceLessThan)) === 'NaN') && (invalid["priceLessThan error"] = "invalid price format");
+      if(Object.keys(invalid).length > 0) return res.status(400).send({status:false, message:invalid});
+      
+      const filter = {isDeleted : false}; //contructing filter
+      if(size) filter.availableSizes = {$all:size};   //find({sizes: {$all:["s", "L"]}})
+      if(name) filter.title = name;
+      filter.price = {};                                                       
+      if(priceGreaterThan) filter.price['$gt'] = priceGreaterThan;
+      if(priceLessThan) filter.price['$lt'] = priceLessThan //find(price: {$gt:500}), find(price:{$gt:500, $lt:7000}), {$and: [{price:{$gt:500}}, {price:{$lt:7000}}] }
+      if(Object.keys(filter.price).length === 0) delete filter.price;   
+                                                    
+      if(priceSort != -1) priceSort = 1;
+
+      const data = await productModel.find(filter).sort({price : priceSort});
+      if(data.length === 0) return res.status(404).send({status:false, message:"product not available as per your query"});
+      return res.status(200).send({status:true, message:`${data.length} match found`, data : data});
+
+   } catch (err) {
+      console.log(err);
+      return res.status(500).send({status:false, message:err.message});
+   }
+}
+
+
 //-------------------------------------------upadteApi----------------------------------------
 const updateProduct = async function (req, res) {
     try {
@@ -210,5 +266,14 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-module.exports={createProduct,getProductsById,deleteProduct,updateProduct}
+module.exports={createProduct,getProductsById,deleteProduct,updateProduct, getProductsByQuery}
 
+let size = "s, L, T, S,K, M";
+size = 's,y'
+const arr = ['S', 'M', 'L', 'XL', 'XXL', 'XXL']
+size = [...new Set(size.toUpperCase().split(",").map((s)=>s.trim()))];
+console.log(size)
+{for(let i=0; i<size.length; i++){
+   if(arr.indexOf(size[i]) === -1) return console.log("enum err")
+}
+}

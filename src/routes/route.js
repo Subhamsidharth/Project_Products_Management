@@ -19,13 +19,10 @@ router.put('/user/:userId/profile', authentication, authorisation, validateUserP
 
 //------------------------------------------------------------------------------------------------
 //APIS for product
-router.post("/products", productController.createProduct)
-
+router.post("/products", productController.createProduct);
+router.get("/products", productController.getProductsByQuery);
 router.get("/products/:productId", productController.getProductsById)
-
-//APIs for product
 router.put("/products/:productId",productController.updateProduct)
-
 router.delete("/products/:productId",productController.deleteProduct)
 
 

@@ -291,3 +291,6 @@ const updateUser = async function(req, res){                            // authe
 
 
 module.exports = { createUser, userLogin, getUserDetail,updateUser }
+
+
+
