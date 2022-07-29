@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+# Project---Products-Management
+Project-5------FunctionUp------------Radon Cohort
+
+>>>>>>> 0833261095df8b7b5272f594a0954a2c8f60afad
 #Radon
 ## Project - Products Management
 
@@ -141,8 +147,13 @@
 
 ## PUT /user/:userId/profile (Authentication and Authorization required)
 - Allow an user to update their profile.
+<<<<<<< HEAD
 - A user can update all the fields
 - Make sure that userId in url param and in token is same
+=======
+- A user can update all the fields.
+- Make sure that userId in url param and in token is same.
+>>>>>>> 0833261095df8b7b5272f594a0954a2c8f60afad
 - __Response format__
   - _**On success**_ - Return HTTP status 200. Also return the updated user document. The response should be a JSON object like [this](#successful-response-structure)
   - _**On error**_ - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
