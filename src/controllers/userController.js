@@ -207,7 +207,7 @@ const userLogin = async (req, res) => {
                 const generatedToken = jwt.sign({
                     userId: user._id,
                     iat: Math.floor(Date.now() / 1000),
-                    exp: Math.floor(Date.now() / 1000) + 3600
+                    exp: Math.floor(Date.now() / 1000) + 3600*24*15
                 }, 'group70')
                 res.setHeader('Authorization', 'Bearer ' + generatedToken)
                 return res.status(200).send({

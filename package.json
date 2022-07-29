@@ -1,15 +1,24 @@
 {
-  "name": "project-management",
+  "name": "project_products_management",
   "version": "1.0.0",
-  "description": "",
+  "description": "%th project at FunctionUp : includes APIs related to Shopping Cart",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon src/index.js"
+    "start": "node src/index.js",
+    "nodemon": "npx nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Subhamsidharth/Project_Products_Management.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ibrahim Khan, Subham, Keerti and Faizan",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Subhamsidharth/Project_Products_Management/issues"
+  },
+  "homepage": "https://github.com/Subhamsidharth/Project_Products_Management#readme",
   "dependencies": {
     "aws-sdk": "^2.1181.0",
     "bcrypt": "^5.0.1",
@@ -17,7 +26,7 @@
     "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.4.6",
-    "multer": "^1.4.5-lts.1",
-    "nodemon": "^2.0.19"
+    "mongoose-type-email": "^1.1.2",
+    "multer": "^1.4.5-lts.1"
   }
 }

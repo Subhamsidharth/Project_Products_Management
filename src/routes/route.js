@@ -5,8 +5,8 @@ const router = express.Router();
 //const productController=require("../controllers/productController")
 const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
 const productController = require("../controllers/productController")
-const { authorisation, authentication } = require("../middleware/auth")
-const { validateUserPut } = require("../middleware/validation")
+const { authorisation, authentication } = require("../middlewares/auth")
+const { validateUserPut } = require("../middlewares/validation")
 
 
 
@@ -15,7 +15,7 @@ router.post("/register", createUser);
 router.post("/login", userLogin);
 router.get("/user/:userId/profile", authentication, getUserDetail)
 // router.put("/user/:userId/profile",authMw.authentication, updateUser)
-router.put('/user/:userId/profile', authentication, authorisation, validateUserPut, updateUser)
+router.put('/user/:userId/profile', authentication, authorisation, validateUserPut, updateUser) //tested: working
 
 //------------------------------------------------------------------------------------------------
 //APIS for product
@@ -37,7 +37,7 @@ router.all("/**", function (req, res) {
         status: false,
         message: "The api you request is not available"
     })
-})
+})  //awesome
 
 
 
