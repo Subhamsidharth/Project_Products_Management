@@ -89,8 +89,7 @@ function isPincode(x){
 
 //romoveSpaces
 function removeSpaces(x){
-    // return x.split(" ").filter((y)=> y).join(" ");
-    return x.split(" ").join(" ");
+    return x.split(" ").filter((y)=> y).join(" ");
 }
 
 

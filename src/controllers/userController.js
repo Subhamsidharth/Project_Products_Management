@@ -17,7 +17,7 @@ const createUser = async function(req,res){ //validations remaining
         const data = req.body
         
         //s3 link
-        const arrFiles = req.files;                                                                         console.log("test",arrFiles[0])
+        const arrFiles = req.files;                                                                        
         if(!arrFiles || arrFiles.length===0) return res.status(400).send({status:false, message:"mandatory image file is not found"});
         const imageUrl = await uploadFile(arrFiles[0]);
         data.profileImage = imageUrl;
@@ -128,13 +128,3 @@ module.exports = {createUser, login, getProfile, updateUser}
 
 
 
-/*
-test {
-  fieldname: 'profileImage',
-  originalname: 'bookCover.jfif',
-  encoding: '7bit',
-  mimetype: 'application/octet-stream',
-  buffer: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01 00 01 00 00 ff db 00 84 00 09 06 07 13 10 10 12 12 12 12 16 13 15 16 17 1a 15 16 16 15 16 15 18 17 16 ... 6741 more bytes>,
-  size: 6791
-}
-*/

@@ -19,9 +19,9 @@ const validateUserPut = async function(req, res, next){
             streetS     =     req.body['address.shipping.street']     =     address.shipping.street;
             cityS       =     req.body['address.shipping.city']       =     address.shipping.city;
             pincodeS    =     req.body['address.shipping.pincode']    =     address.shipping.pincode;
-            streetB     =     req.body['address.billing.street']      =     address.shipping.street
-            cityB       =     req.body['address.billing.city']        =     address.shipping.city;
-            pincodeB    =     req.body['address.billing.pincode']     =     address.shipping.pincode;
+            streetB     =     req.body['address.billing.street']      =     address.billing.street
+            cityB       =     req.body['address.billing.city']        =     address.billing.city;
+            pincodeB    =     req.body['address.billing.pincode']     =     address.billing.pincode;
         }                                                                                  
         
         const msg = {}; //validation of fields
