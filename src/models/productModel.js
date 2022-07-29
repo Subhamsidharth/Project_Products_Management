@@ -49,11 +49,8 @@ const productSchema = new mongoose.Schema({
         trim: true,
         uppercase: true
     }],
-    installments: {
-        type: Number
-    },
+    installments:Number,
     deletedAt: Date,
-
     isDeleted: {
         type: Boolean,
         default: false
