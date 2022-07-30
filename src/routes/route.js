@@ -3,7 +3,7 @@ const router = express.Router();
 const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const { authorisation, authentication } = require("../middlewares/auth")
-const { validateUserPut } = require("../middlewares/validation")
+const { validateUserPut, validateProduct } = require("../middlewares/validation")
 
 
 
@@ -15,7 +15,7 @@ router.put('/user/:userId/profile', authentication, authorisation, validateUserP
 
 //------------------------------------------------------------------------------------------------
 //APIS for product
-router.post("/products", productController.createProduct);
+router.post("/products", validateProduct, productController.createProduct);
 router.get("/products", productController.getProductsByQuery);
 router.get("/products/:productId", productController.getProductsById)
 router.put("/products/:productId",productController.updateProduct)
