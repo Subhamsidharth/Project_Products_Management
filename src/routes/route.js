@@ -4,6 +4,7 @@ const { createUser, userLogin, getUserDetail, updateUser } = require("../control
 const productController = require("../controllers/productController")
 const { authorisation, authentication } = require("../middlewares/auth")
 const { validateUserPut, validateProduct } = require("../middlewares/validation")
+const {createCart} = require('../controllers/cartController.js');
 
 
 
@@ -21,6 +22,8 @@ router.get("/products/:productId", productController.getProductsById)
 router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProduct)
 
+//APIs for cart
+router.post('/users/:userId/cart', createCart);          //POST /users/:userId/cart (Add to cart)
 
 
 

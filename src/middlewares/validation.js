@@ -1,7 +1,7 @@
 const userModel = require('../models/userModel.js');
 const productModel = require('../models/productModel.js');
 const {isFname, isLname, isEmail, isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase, isImage} = require('../validators/validateUser.js');
-const {isTitle, isDescription, isPrice, isCurrencyId, isCurrencyFormat, isBoolean, isStyle, isInstallments, isImageFile} = require('../validators/validateProduct.js');
+const {isTitle, isDescription, isPrice, isBoolean, isStyle, isInstallments, isImageFile} = require('../validators/validateProduct.js');
 
 const validateUserPut = async function(req, res, next){
     try{
@@ -75,7 +75,7 @@ const validateUserPut = async function(req, res, next){
 //------------------------------create Product Validation --------------------------------//
 const validateProduct = async function(req, res, next){
     try {
-        let {title, description, price, currencyId, currencyFormat, isFreeShipping,  style, availableSizes, installments} = req.body //productImage, from req.files
+        let {title, description, price,  isFreeShipping,  style, availableSizes, installments} = req.body //productImage, from req.files
         const files = req.files;
         
         const isSizes = function(y){
@@ -93,8 +93,6 @@ const validateProduct = async function(req, res, next){
         if(isTitle(title)                  !== true) inputError.title =          isTitle(title);
         if(isDescription(description)      !== true) inputError.description =    isDescription(description);
         if(isPrice(price)                  !== true) inputError.price =          isPrice(price);
-        if(isCurrencyId(currencyId)        !== true) inputError.currencyId =     isCurrencyId(currencyId);
-        if(isCurrencyFormat(currencyFormat)!== true) inputError.currencyFormat = isCurrencyFormat(currencyFormat);
         if(isFreeShipping && isBoolean(isFreeShipping)     !== true) inputError.isFreeShipping = isBoolean(isFreeShipping);
         if(isImageFile(files)              !== true) inputError.files =          isImageFile(files);
         if(style && isStyle(style)         !== true) inputError.style =          isStyle(style);
@@ -105,6 +103,8 @@ const validateProduct = async function(req, res, next){
         //format and add to request
         req.body.title = removeSpaces(title);
         req.body.description = removeSpaces(description);
+        req.body.currencyId = "INR";
+        req.body.currencyFormat = "₹";
     
         //duplicate
         const doc = await productModel.findOne({title:title});
@@ -119,6 +119,5 @@ const validateProduct = async function(req, res, next){
 
 
 module.exports = {validateUserPut, validateProduct};
-
 
 
