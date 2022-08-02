@@ -86,3 +86,15 @@ module.exports = {createCart};
 
 
 */
+
+
+//const savedCart = await cartModel.findByIdAndUpdate( cart._id, {$set: cartData}, {new:true}).populate({path:'items.productId', select:{title:1, price:1, productImage:1}}).select({items:{_id:0}}).lean()      //.populate({path:'users', options:{strictPopulate:false}});
+//let savedCart = await cartModel.create(cartData);      //"cartModel.create(...).populate is not a function", "cartModel.create(...).lean is not a function"
+
+
+/*
+WINDOW + V => for clipboard history,
+dot(.) => github into vsCode
+alt+tab => switch b/w apps
+ctrl+tab => switch b/tabs
+*/

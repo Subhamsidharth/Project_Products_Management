@@ -14,6 +14,7 @@ function isId(x){
     return true; 
 };
 
+//tested=> all ok
 const createCart = async function(req, res){
     try {
 
@@ -32,6 +33,7 @@ const createCart = async function(req, res){
             return true
         }
 
+        if(Object.keys(req.body).length === 0) return res.status(400).send({status:false, message:"can't create cart with empty body"});
         const inputError={};
         if(isId(userId) !== true) inputError['userId'] = isId(userId);
         if(items && (isItems(items) !== true)) inputError['items'] = isItems(items);
@@ -66,7 +68,7 @@ const createCart = async function(req, res){
             totalPrice = cart.totalPrice + price*quantity;
 
             const cartData = {items, totalPrice, totalItems};                  
-            const savedCart = await cartModel.findByIdAndUpdate( cart._id, {$set: cartData}, {new:true}).populate({path:'items.productId', select:{title:1, price:1, productImage:1}}).select({items:{_id:0}}).lean()      //.populate({path:'users', options:{strictPopulate:false}});
+            const savedCart = await cartModel.findByIdAndUpdate( cart._id, {$set: cartData}, {new:true}).populate({path:'items.productId', select:{title:1, price:1, productImage:1}}).lean()      //.populate({path:'users', options:{strictPopulate:false}});
 
             return res.status(200).send({status:true, message:"product added to cart successfully", data:savedCart});
             
@@ -77,7 +79,7 @@ const createCart = async function(req, res){
             const cartData = {userId, items, totalPrice, totalItems};                  
 
             let savedCart = await cartModel.create(cartData);      //"cartModel.create(...).populate is not a function", "cartModel.create(...).lean is not a function"
-            savedCart = await cartModel.findById(savedCart._id).populate({path:'items.productId', select:{title:1, productImage:1, price:1}}).select({items:{_id:0}}).lean();                         
+            savedCart = await cartModel.findById(savedCart._id).populate({path:'items.productId',select:{title:1, productImage:1, price:1}}).lean();                         
             return res.status(201).send({status:true, message:"cart created successfully", data:savedCart});
         }
     } catch (err) {
@@ -98,7 +100,7 @@ const createCart = async function(req, res){
 // - Get product(s) details in response body.
 // - Check if the productId exists and is not deleted before updating the cart.
 
-const updateCart = async (req, res) => { 
+const updateCart = async (req, res) => { //tested=> pending, need rectification
     try {
         const userId = req.params.userId
         const Body = req.body
@@ -134,7 +136,7 @@ const updateCart = async (req, res) => {
                     findCart.items[i].quantity = findCart.items[i].quantity - 1
                     // console.log("abc")
 
-                    if (findCart.items[i].quantity > 0) {
+                    if (findCart.items[i].quantity > 0) {//
                         const Data = await cartModel.findOneAndUpdate({ _id: cartId }, { items: findCart.items, totalPrice: updatedPrice }, { new: true })
                         return res.status(200).send({ status: true, message:"Item Removed", data: Data })
                     }
@@ -149,6 +151,7 @@ const updateCart = async (req, res) => {
                 }
 
             }
+            return res.status(404).send({status:false, message:"This product is not inside the cart"})//?
         }
         if (removeProduct == 0) {
             for (let i = 0; i < findCart.items.length; i++) {
@@ -161,6 +164,7 @@ const updateCart = async (req, res) => {
 
                 }
             }
+            return res.status(404).send({status:false, message:"This product is not inside the cart"})//?
         }
     
     }
@@ -170,7 +174,7 @@ const updateCart = async (req, res) => {
     }
 }
 
-
+//tested=> all ok
 const getCart = async (req,res ) => {
     try {
         let userId = req.params.userId
@@ -188,9 +192,8 @@ const getCart = async (req,res ) => {
         const userExist = await userModel.findById(userId)
         if(!userExist) return res.status(404).send({status: false, message: "User doesn't exist"})
 
-        const findCart  = await cartModel.findOne({userId : userId, isDeleted: false})
+        const findCart  = await cartModel.findOne({userId : userId}).populate({path:'items.productId', select:{title:1, price:1, productImage:1}})                //
         if(!findCart ) return res.status(404).send({status: false, message: "No cart found"}) 
-        
         if(findCart.items.length == 0) return res.status(404).send({status: false, message: "This user has no cart collection"}) 
 
         return res.status(200).send({status:true, message:"Success", data: findCart});
@@ -201,12 +204,16 @@ const getCart = async (req,res ) => {
     }
 }
 
-
+//tested=> all ok
 const deleteCart=async function(req,res){
     try{
         let userId=req.params.userId
         if(!mongoose.Types.ObjectId.isValid(userId))
-        return res.status(400).send({status:false,message:"invalid userId"})
+        return res.status(400).send({status:false,message:"invalid userId"});
+
+        //
+        let checkUserId=await userModel.findById({_id:userId})
+        if(!checkUserId) return res.status(404).send({status:false,message:"This user id is not present in DB"})
 
         let cartExist = await cartModel.findOne({userId:userId})
 

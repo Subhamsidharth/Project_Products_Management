@@ -1,11 +1,9 @@
 const productModel = require('../models/productModel')
 const mongoose = require("mongoose")
 const { uploadFile } = require("../aws/aws")
-const { isValid, isValidObjectId, isValidRequestBody, isImage, priceRegex } = require("../validators/validator")
-
-
-// const productModel = require('../models/productModel.js');
-// const {uploadFile} = require('../aws/aws.js');
+const { isValid, isValidObjectId, isValidRequestBody, isImage, priceRegex } = require("../validators/validator");
+const {isTitle, isDescription, isPrice, isCurrencyId, isCurrencyFormat, isBoolean, isStyle, isInstallments, isImageFile} = require('../validators/validateProduct')
+// const {isFname, isLname, isEmail, isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase} = require('../validators/validateUser')
 
 
 /*-----------------------------------------------------1st product API : POST /products------------------------------------*/
@@ -80,7 +78,8 @@ const updateProduct = async function (req, res) {
       let reqData = req.body;
       let files = req.files;
 
-      let { title, description, price, isFreeShipping, productImage, style, availableSizes, installments } = req.body
+      let { title, description, price, isFreeShipping, productImage, style, availableSizes, installments } = req.body;
+      
 
       if (Object.keys(reqData).length === 0) return res.status(400).send({ status: false, message: "No Data For Update" });   //check body is empty or not
       if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "productId is invalid" })  //check id
@@ -114,9 +113,20 @@ const updateProduct = async function (req, res) {
      
       let findProductId = await productModel.findById({ _id: productId })   //check product in DB
       if (!findProductId) return res.status(404).send({ status: false, message: "productId is not present in Db" })
-      if (findProductId.isDeleted) return res.status(404).send({ status: false, message: "this product is already deleted" })
+      if (findProductId.isDeleted) return res.status(404).send({ status: false, message: "this product is already deleted" });
 
-      let updatedData = await productModel.findByIdAndUpdate(productId, reqData, { new: true }) // update book
+      let objUpdate = {};clear
+      if(title)         objUpdate.title =          title;
+      if(description)   objUpdate.description =    description;
+      if(price)         objUpdate.price =          price;
+      if(isFreeShipping)objUpdate.isFreeShipping = isFreeShipping;
+      if(productImage)  objUpdate.productImage =   productImage;
+      if(style)         objUpdate.style =          style;
+      if(availableSizes)objUpdate.availableSizes = availableSizes;
+      if(installments)  objUpdate.installments =   installments;
+      
+
+      let updatedData = await productModel.findByIdAndUpdate(productId, objUpdate, { new: true }) // update book
       res.status(200).send({ status: true, message: "upadated successfully", data: updatedData })
    } catch (error) {
       console.log(error)
