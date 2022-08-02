@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const {uploadFile} =require("../aws/aws")
 const saltRounds = 10;
-const { isValid, isValidObjectId, isValidRequestBody, isImage, nameRegex, mobileRegex,validateStreet,validateCity,validatePincode } = require("../validators/validator")
+const { isValid, isValidObjectId, isValidRequestBody, isImage,isStreet,isCity, isPincode, isPhone,isFname,isLname } = require("../validators/validator")
 
 
 //------------------------------------Post Register Api-------------------------------------------------
@@ -19,23 +19,23 @@ const createUser = async function (req, res) {
         //------------------fname----------
         if (!isValid(fname))
             return res.status(400).send({ status: false, message: "Please enter valid fname. ⚠️" });
-        if (!nameRegex.test(fname))
+        if (!isFname(fname))
             return res.status(400).send({ status: false, message: "fname should not be Alfanumeric ⚠️" })
         //--------------------lname------------
         if (!isValid(lname))
             return res.status(400).send({ status: false, message: "Please enter some lname. ⚠️", });
-        if (!nameRegex.test(lname))
+        if (!isLname(lname))
             return res.status(400).send({ status: false, message: "lname should not be Alfanumeric ⚠️" })
         //------------------email------------
-        
+        if (!isValid(email))
+        return res.status(400).send({ status: false, message: "Please enter a Email in the email-Field. ⚠️", });
         if (!(emailValidator.validate(email))) 
         return res.status(400).send({ status: false, message: "Email should be in right format ⚠️" })
     
-       
-        //------------Phone-------------------
+               //------------Phone-------------------
         if (!isValid(phone))
             return res.status(400).send({ status: false, message: "Please enter the phonefield. ⚠️" });
-        if (!mobileRegex.test(phone))
+        if (!isPhone(phone))
             return res.status(400).send({ status: false, message: "please Enter a valid Indian Mobile number ⚠️" })
         //-------------Password----------------
         if (!isValid(password))
@@ -55,7 +55,6 @@ const createUser = async function (req, res) {
             try{
               address = JSON.parse(data.address)
             }catch(err){
-            //   console.log(err.message)
              return res.status(400).send({status: false,  message: `Address should be in valid object format`})
             }
       
@@ -74,50 +73,42 @@ const createUser = async function (req, res) {
         }
         if (!address.shipping.pincode || !address.billing.pincode) {
             return res.status(400).send({ status: false, message: "pincode is  required " })
-
         }
         //-------------------------------------------------------------------
         let Sstreet = address.shipping.street
         let Scity = address.shipping.city
-        let Spincode = parseInt(address.shipping.pincode)     //shipping
+        let Spincode = parseInt(address.shipping.pincode)     //shipping---->street,city,pincode
         if (Sstreet) {
-            // let validateStreet = /^[a-zA-Z0-9]/
-            if (!validateStreet.test(Sstreet)) {
+            if (!isStreet(Sstreet)) {
                 return res.status(400).send({ status: false, message: "enter valid street name in shipping" })
             }
         }
-
         if (Scity) {
-            // let validateCity = /^[a-zA-Z0-9]/
-            if (!validateCity.test(Scity)) {
+            if (!isCity(Scity)) {
                 return res.status(400).send({ status: false, message: "enter valid city name in shipping" })
             }
         }
-        if (Spincode) {
-            // let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
-            if (!validatePincode.test(Spincode)) {
+        if (Spincode) {                                      
+            if (!isPincode(Spincode)) {
                 return res.status(400).send({ status: false, message: "enter valid pincode in shipping" })
             }
         }
+
         let Bstreet = address.billing.street
-        let Bcity = address.billing.city                             //billing
+        let Bcity = address.billing.city                          //Billing--->street,city,pincode
         let Bpincode = parseInt(address.billing.pincode)
         if (Bstreet) {
-            // let validateStreet = /^[a-zA-Z0-9]/
-            if (!validateStreet.test(Bstreet)) {
+            if (!isStreet(Bstreet)) {
                 return res.status(400).send({ status: false, message: "enter valid street name in shipping" })
             }
         }
-
         if (Bcity) {
-            // let validateCity = /^[a-zA-Z0-9]/
-            if (!validateCity.test(Bcity)) {
+            if (!isCity(Bcity)) {
                 return res.status(400).send({ status: false, message: "enter valid city name in shipping" })
             }
         }
         if (Bpincode) {
-            // let validatePincode = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/     //must not start with 0,6 digits and space(optional)
-            if (!validatePincode.test(Bpincode)) {
+            if (!isPincode(Bpincode)) {
                 return res.status(400).send({ status: false, message: "enter valid pincode in shipping" })
             }
         }
