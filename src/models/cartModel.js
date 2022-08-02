@@ -24,3 +24,20 @@ module.exports = mongoose.model('Cart', cartSchema);
     totalPrice: {number, mandatory, comment: "Holds total price of all the items in the cart"},
     totalItems: {number, mandatory, comment: "Holds total number of items in the cart"},
 */
+/*
+items: [{
+        productId: {
+            type: ObjectId,
+            ref: 'Product',
+            required: true,
+        }, 
+        quantity: {
+            type: Number,
+            required: true,
+            trim: true,
+            min: 1,
+        },
+        _id:false
+    }],
+
+*/

@@ -37,14 +37,15 @@ const createCart = async function(req, res){
         if(quantity && (!(Number(quantity)>0) || (parseInt(quantity) != quantity)) ) inputError['quantity'] = "quantity must be >= 1 & an integer type";
         if(Object.keys(inputError).length > 0) return res.status(400).send({status:false, message:{inputError}});
        
-        const user = await userModel.findById(userId);
-        if(!user || user.isDeleted) return res.status(404).send({status:false, message:"user does not exist"}) //status code?
+        const user = await userModel.findById(userId).lean();                                               
+        if(!user || user.isDeleted) return res.status(404).send({status:false, message:"user does not exist"}) 
 
-        const productDoc = await productModel.findById(productId);
+        const productDoc = await productModel.findById(productId);                                             
         if(!productDoc || productDoc.isDeleted) return res.status(404).send({status:false, message:"product does not exists"})
         const price = productDoc.price;
 
-        const cart = await cartModel.findOne({userId:userId});      //checking for existing cart //must do be another update way
+        const cart = await cartModel.findOne({userId:userId}).lean();                                                               
+         //checking for existing cart //must do be another update way
         let totalPrice; let totalItems;
         if(cart){    
             items = cart.items;                                                 
@@ -62,16 +63,18 @@ const createCart = async function(req, res){
             totalPrice = cart.totalPrice + price*quantity;
 
             const cartData = {items, totalPrice, totalItems};                  
-            const savedCart = await cartModel.findByIdAndUpdate( cart._id, {$set: cartData}, {new:true});
+            const savedCart = await cartModel.findByIdAndUpdate( cart._id, {$set: cartData}, {new:true}).populate({path:'items.productId', select:{title:1, price:1, productImage:1}}).select({items:{_id:0}}).lean()      //.populate({path:'users', options:{strictPopulate:false}});
+
             return res.status(200).send({status:true, message:"product added to cart successfully", data:savedCart});
             
         }else{  //create new cart
             items = [{productId, quantity}];
             totalPrice = price*quantity;
             totalItems = 1;
-
             const cartData = {userId, items, totalPrice, totalItems};                  
-            const savedCart = await cartModel.create(cartData);                         
+
+            let savedCart = await cartModel.create(cartData);      //"cartModel.create(...).populate is not a function", "cartModel.create(...).lean is not a function"
+            savedCart = await cartModel.findById(savedCart._id).populate({path:'items.productId', select:{title:1, productImage:1, price:1}}).select({items:{_id:0}}).lean();                         
             return res.status(201).send({status:true, message:"cart created successfully", data:savedCart});
         }
     } catch (err) {
@@ -83,3 +86,16 @@ const createCart = async function(req, res){
 
 module.exports = {createCart};
 
+/*
+find(...).
+  populate({
+    path: 'fans',
+    match: { age: { $gte: 21 } },
+    // Explicitly exclude `_id`, see http://bit.ly/2aEfTdB
+    select: 'name -_id'
+  }).
+  exec();
+*/
+/*
+model.findOne({}, undefined, { populate: {path: 'fooo', options: {strictPopulate: false}}, option: {strictPopulate: false}, })
+*/
