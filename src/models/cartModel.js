@@ -5,7 +5,7 @@ const cartSchema = new mongoose.Schema({            //POST /users/:userId/cart (
 
     userId      :{type:ObjectId,    required:true,  unique:true,    ref:'User'},
     items       :[{
-       productId:{type:ObjectId,    required:true,  unique:true,    ref:'Product'},
+       productId:{type:ObjectId,    required:true,  ref:'Product'},
        quantity :{type:Number,      required:true,  default:1},
                 }],
     totalPrice  :{type:Number,      required:true},

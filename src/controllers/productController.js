@@ -2,10 +2,8 @@ const productModel = require('../models/productModel')
 const mongoose = require("mongoose")
 const { uploadFile } = require("../aws/aws")
 const { isValid, isValidObjectId, isValidRequestBody, isImage, priceRegex } = require("../validators/validator")
+const {isInstallments,isBoolean}=require("../validators/validateProduct")
 
-
-// const productModel = require('../models/productModel.js');
-// const {uploadFile} = require('../aws/aws.js');
 
 
 /*-----------------------------------------------------1st product API : POST /products------------------------------------*/
@@ -80,10 +78,10 @@ const updateProduct = async function (req, res) {
       let productId = req.params.productId
       let reqData = req.body
 
-      let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes, installments, isDeleted } = req.body
+      let { title, description, price, isFreeShipping, productImage, style, availableSizes, installments } = req.body
 
       //check body is empty or not
-      if (!isValidRequestBody(reqData))
+      if (!Object.keys(reqData))
          return res.status(400).send({ status: false, message: "No Data For Update" })
 
       //check id
@@ -98,53 +96,42 @@ const updateProduct = async function (req, res) {
 
       if (price && (!priceRegex.test(price)))
          return res.status(400).send({ status: false, message: "price should be valid format" })
-
-      if (currencyId && (currencyId !== "INR"))
-         return res.status(400).send({ status: false, message: "currencyId should be in INR. ⚠️" })
-
-      if (currencyFormat && (currencyFormat !== "₹"))
-         return res.status(400).send({ status: false, message: "currencyFormat should be in ₹. ⚠️" })
-
-      if (isFreeShipping && (!typeof isFreeShipping === "boolean")) //
-         return res.status(400).send({ status: false, message: "isFreeeShopping shoud be true or false" })
+ 
+      if (isFreeShipping && (isBoolean(isFreeShipping) !== true)) 
+         return res.status(400).send({ status: false, message: isBoolean(isFreeShipping) })
 
       if (style && (!regName.test(style)))
          return res.status(400).send({ status: false, message: "style is invalid" })
-      if (installments) {
-         const num = String(Number(installments));
-         if (num == 'NaN') {
-            return res.status(400).send({ status: false, message: "Please enter valid installments. ⚠️" })
-         }
-      }
 
-      if (isDeleted && (!typeof isDeleted === "boolean"))
-         return res.status(400).send({ status: false, message: "isDeleted shoud be true or false" })//-----------------
+      if ( installments && (isInstallments(installments) !==true)) 
+          return res.status(400).send({ status: false, message: isInstallments(installments) })
 
-      if (availableSizes) {
-         if (availableSizes[0] === "[") availableSizes = availableSizes.substring(1, availableSizes.length - 1)
-         availableSizes = availableSizes.toUpperCase().split(',').map(x => x.trim())
-         // availableSizes = JSON.parse(availableSizes)
-         availableSizes = [...new Set(availableSizes)];
-         let check = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-         for (let i = 0; i < availableSizes.length; i++) {
-            if (!check.includes(availableSizes[i])) {
-               return res.status(400).send({ status: false, message: 'Size should be only in uppercase - S, XS, M, X, L, XXL, XL. ⚠️' })
-
+         const isSizes = function(y){
+            const _enum = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+            if(!y) return `please enter atleast one size from ${_enum}`;
+            y =  [...new Set(y.toUpperCase().split(",").map((x)=>x.trim()))];
+            for(let i=0; i<y.length; i++){
+                if(!_enum.includes(y[i])) return `${y[i]} is not a valid size, valid size ref : ${_enum}`;
             }
-         }
-      }
+            availableSizes = req.body.availableSizes = [...y];       
+        }
+         if(availableSizes && (isSizes(availableSizes) !==true))
+         return res.status(400).send({status:false, message:isSizes(availableSizes)})
+      
       let files = req.files
       if (productImage) {
-         if (!files || (files && files.length === 0)) {
-            return res.status(400).send({ status: false, message: " Please Provide The Product Image ⚠️" });
+      if (!files || (files && files.length === 0)) {
+         return res.status(400).send({ status: false, message: " Please Provide The Product Image ⚠️" });
          }
 
-         if (!isImage(files[0].originalname))
-            return res.status(400).send({ status: false, message: "Please enter the Image in a Valid format. ⚠️" });
-         productImage = await uploadFile(files[0])
+      if (!isImage(files[0].originalname))
+        return res.status(400).send({ status: false, message: "Please enter the Image in a Valid format. ⚠️" });
+       productImage = await uploadFile(files[0])
       }
+      //duplicate title
       let checkTitle = await productModel.findOne({ title: title });
       if (checkTitle) return res.status(400).send({ status: false, message: "This title is already used. ⚠️" });
+      //check product in DB
       let findProductId = await productModel.findById({ _id: productId })
       if (!findProductId)
          return res.status(404).send({ status: false, message: "productId is not present in Db" })
@@ -157,7 +144,7 @@ const updateProduct = async function (req, res) {
       res.status(200).send({ status: true, message: "upadated successfully", data: updatedData })
    } catch (error) {
 
-      return res.status(500).send({ status: false, msg: error })
+      return res.status(500).send({ status: false, msg: error.message })
    }
 }
 

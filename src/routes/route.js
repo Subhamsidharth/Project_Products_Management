@@ -4,8 +4,8 @@ const { createUser, userLogin, getUserDetail, updateUser } = require("../control
 const productController = require("../controllers/productController")
 const { authorisation, authentication } = require("../middlewares/auth")
 const { validateUserPut, validateProduct } = require("../middlewares/validation")
-const {createCart} = require('../controllers/cartController.js');
-
+const {createCart, deleteCart, getCart} = require('../controllers/cartController.js');
+const{createOrder}=require("../controllers/orderController")
 
 
 //APIS for user
@@ -24,7 +24,11 @@ router.delete("/products/:productId",productController.deleteProduct)
 
 //APIs for cart
 router.post('/users/:userId/cart', createCart);          //POST /users/:userId/cart (Add to cart)
+router.get('/users/:userId/cart',getCart)                // Get/users/:userId/cart
+router.delete('/users/:userId/cart',authorisation, authentication,deleteCart)          //delete/users/:userId/cart
 
+//APIs for order
+router.post("/users/:userId/orders",createOrder)     // POST /users/:userId/orders
 
 
 //--------------------------------------------------------------------------
