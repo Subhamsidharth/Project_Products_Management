@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
+    "start": "npx nodemon src/index.js",
     "nodemon": "npx nodemon src/index.js"
   },
   "repository": {
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/Subhamsidharth/Project_Products_Management.git"
   },
   "keywords": [],
-  "author": "Ibrahim Khan, Subham, Rinki Pradhan and Faizan",
+  "author": "Ibrahim Khan, Subham, Rinki and Faizan",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Subhamsidharth/Project_Products_Management/issues"

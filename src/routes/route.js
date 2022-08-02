@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
-const productController = require("../controllers/productController")
-const { authorisation, authentication } = require("../middlewares/auth")
-const { validateUserPut, validateProduct } = require("../middlewares/validation")
-const {createCart} = require('../controllers/cartController.js');
+const { authorisation, authentication } = require("../middlewares/auth");
+const { validateUserPut, validateProduct } = require("../middlewares/validation");
+const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController");
+const productController = require("../controllers/productController");
+const {createCart, updateCart, getCart, deleteCart}= require("../controllers/cartController");
+
 
 
 
@@ -22,8 +23,11 @@ router.get("/products/:productId", productController.getProductsById)
 router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProduct)
 
-//APIs for cart
-router.post('/users/:userId/cart', createCart);          //POST /users/:userId/cart (Add to cart)
+//===============================================================================
+router.post("/users/:userId/cart",createCart)
+router.put("/users/:userId/cart",authentication,authorisation,updateCart);
+router.get('/users/:userId/cart',getCart);
+router.delete('/users/:userId/cart',deleteCart)
 
 
 

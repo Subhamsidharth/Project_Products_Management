@@ -99,7 +99,6 @@ function isStreet(x){
     if(typeof x !== "string") return "Data type Error : street must be a string type";
     const regEx = /^\s*[a-zA-Z0-9]+([\-\.\,]?\s*[\w\s]+)*\s*$/;
     if(!regEx.test(x)) return "invalid street format";
-    console.log(x)
     return true;
 }
 
