@@ -126,7 +126,8 @@ const getUserDetail = async function (req, res) {                             //
 }
 //=========================================Update User Api====================================================================//
 const updateUser = async function (req, res) {                            //validateUser >> authentication >> authorisation >> updateUser
-    const data = req.body;
+    try {
+        const data = req.body;
     const userId = req.params.userId
 
     const objUpdate = req.objUpdate;
@@ -145,6 +146,10 @@ const updateUser = async function (req, res) {                            //vali
 
     const updatedData = await userModel.findOneAndUpdate({ _id: userId }, { $set: objUpdate }, { new: true });
     return res.status(200).send({ status: true, message: "User profile updated.✔🟢✔", data: updatedData })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
+    }      
 }
 
 
