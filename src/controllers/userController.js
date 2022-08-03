@@ -3,7 +3,7 @@ const emailValidator = require("email-validator");
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
-const { uploadFile } = require("../aws/aws")
+const {uploadFile} =require("../aws/aws")
 const { isValid, isValidObjectId, isValidRequestBody, isImage,isStreet,isCity, isPincode, isPhone,isFname,isLname} = require("../validators/validator");
 const {isEmail, isPassword, removeSpaces, trimAndUpperCase } = require('../validators/validateUser');
 const {isImageFile } = require('../validators/validateProduct');
@@ -37,7 +37,11 @@ const createUser = async function (req, res) {
         if(address.billing && (isPincode(address.billing.pincode) !== true)) error.billingpincodeError = isPincode(address.billing.pincode); 
 
         if(Object.keys(error).length > 0) return res.status(400).send({status:false, message:{error}})
-   
+        fname = trimAndUpperCase(fname);
+        lname = trimAndUpperCase(lname);
+        email = removeSpaces(email);
+        phone = removeSpaces(phone);
+
         let profileImage = await uploadFile(files[0])
 
         const hash = bcrypt.hashSync(password, 10); // para1:password, para2:saltRound
@@ -51,13 +55,16 @@ const createUser = async function (req, res) {
 
         let userregister = { fname, lname, email, profileImage, phone, password: hash, address }
         const userData = await userModel.create(userregister);
-        return res.status(201).send({ status: true, message: "User created successfully✅🟢", data: userData });
+        return res.status(201).send({ status: true, message:"User created successfully" , data: userData });       //"User created successfully✅🟢"
     } catch (err) {
         console.log(err)
         return res.status(500).send({ status: false, message: err.message });
     }
 };
-//====================================Log In=============================================================//
+
+
+
+//---------------------------------------LogIn----------------------------------------------------------------------------
 const userLogin = async (req, res) => {
     try {                                                                    // >> Validator
         const body = req.body
@@ -74,24 +81,24 @@ const userLogin = async (req, res) => {
         let user = await userModel.findOne({ email: email });
         if (user) {
             const Passwordmatch = bcrypt.compareSync(body.password, user.password);
-            if (Passwordmatch) {
-                const generatedToken = jwt.sign({
-                    userId: user._id,
-                    iat: Math.floor(Date.now() / 1000),
-                    exp: Math.floor(Date.now() / 1000) + 3600 * 24 * 15
-                }, 'group70')
-                res.setHeader('Authorization', 'Bearer ' + generatedToken)
-                return res.status(200).send({
-                    "status": true,
-                    Message: " user loggedIn Succesfully ✔🟢",
-                    data: {
+                if (Passwordmatch) {
+                    const generatedToken = jwt.sign({
                         userId: user._id,
-                        token: generatedToken,
-                    }
-                });
-            } else {
-                res.status(401).send({ status: false, message: "Password Is Inappropriate. ❗" });
-            }
+                        iat: Math.floor(Date.now() / 1000),
+                        exp: Math.floor(Date.now() / 1000) + 3600*24*15
+                    }, 'group70')
+                    res.setHeader('Authorization', 'Bearer ' + generatedToken)
+                    return res.status(200).send({
+                        "status": true,
+                        message: "User login successfull",                      //" user loggedIn Succesfully ✔🟢"
+                        data: {
+                            userId: user._id,
+                            token: generatedToken,
+                        }
+                    });
+                } else {
+                    res.status(401).send({ status: false, message: "Password Is Inappropriate. ❗" });
+                }
         } else {
             return res.status(400).send({ status: false, message: "Invalid credentials. ❗" });
         }
@@ -108,6 +115,7 @@ const getUserDetail = async function (req, res) {                             //
     try {
         let userIdParams = req.params.userId
 
+        if(!userIdParams || !userIdParams.trim()) return res.status(400).send({status:false, message:"enter userId in url path"});
         if (!isValidObjectId(userIdParams))
             return res.status(400).send({ status: false, message: "⚠️ User Id is Not Valid" })
         if (userIdParams !== req.userId)
@@ -122,7 +130,6 @@ const getUserDetail = async function (req, res) {                             //
         console.log(error)
         return res.status(500).send({ status: false, message: error.message })
     }
-
 }
 //=========================================Update User Api====================================================================//
 const updateUser = async function (req, res) {                            //validateUser >> authentication >> authorisation >> updateUser
@@ -154,6 +161,5 @@ const updateUser = async function (req, res) {                            //vali
 
 
 module.exports = { createUser, userLogin, getUserDetail, updateUser }
-
 
 

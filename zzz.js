@@ -98,3 +98,5 @@ dot(.) => github into vsCode
 alt+tab => switch b/w apps
 ctrl+tab => switch b/tabs
 */
+
+//console.log(Boolean(!(""))) => not(false) => true
