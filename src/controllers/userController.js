@@ -4,138 +4,56 @@ const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const { uploadFile } = require("../aws/aws")
-const saltRounds = 10;
-const { isValid, isValidObjectId, isValidRequestBody, isImage, isStreet, isCity, isPincode, isPhone, isFname, isLname, isEmail } = require("../validators/validator")
+const { isValid, isValidObjectId, isValidRequestBody, isImage,isStreet,isCity, isPincode, isPhone,isFname,isLname} = require("../validators/validator");
+const {isEmail, isPassword, removeSpaces, trimAndUpperCase } = require('../validators/validateUser');
+const {isImageFile } = require('../validators/validateProduct');
 
 //==============================================Create User||Post Api==============================================================//
 const createUser = async function (req, res) {
-    try {                                                                               // >> validator
-        let data = req.body;
-        if (!isValidRequestBody(data))
-            return res.status(400).send({ status: false, message: "Bad Request, Please enter the details in the request body.❌🛑" });
+    try {
+        let { fname, lname, email, phone, password, address } = req.body;
+        let files = req.files;
 
-        const { fname, lname, email, phone, password } = data;
-        const error= {};
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
-        if(isLname(lname) !== true) error.lnameError = isLname(lname);
-        if(isEmail(email) !== true) error.emailError = isEmail(email);
-        if(isPhone(phone) !== true) error.phoneError = isPhone(phone);
-        if(isPassword(password) !== true) error.PasswordError = isPassword(password);
-        if(isStreet(address.shipping.street) !== true) error.fnameError = isFname(fname);
-        if(isCity(fname) !== true) error.fnameError = isCity(fname);
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
-        if(isFname(fname) !== true) error.fnameError = isFname(fname);
+        if (!isValidRequestBody(req.body)) return res.status(400).send({ status: false, message: "Bad Request, Please enter the details in the request body.❌🛑" });
 
+        const error = {};   //missing ProfileImage
+        if(isImageFile(files) !== true) error.ProfileError = isImageFile(files); 
+        if(isFname(fname) !== true) error.FnameError = isFname(fname); 
+        if(isLname(lname) !== true) error.lnameError = isLname(lname); 
+        if(isEmail(email) !== true) error.emailError = isEmail(email); 
+        if(isPhone(phone) !== true) error.phoneError = isPhone(phone); 
+        if(isPassword(password) !== true) error.passwordError = isPassword(password); 
 
+        try{address = JSON.parse(address);
+        }catch(err){return res.status(400).send({status:false, message:"please send addresss in proper format so that JSON parsing can be performed"})}
 
-        if (!isValid(fname))                                       //=====Fname=========//
-            return res.status(400).send({ status: false, message: "⚠️ Please enter valid fname. " });
-        if (isFname(fname))
-            return res.status(400).send({ status: false, message: "⚠️ fname should not be Alfanumeric." })
-        if (!isValid(lname))                                       //======Lname=========//
-            return res.status(400).send({ status: false, message: "⚠️ Please enter some lname.", });
-        if (isLname(lname))
-            return res.status(400).send({ status: false, message: "⚠️ lname should not be Alfanumeric." })
-        if (!isValid(email))                                       //======Email===========//
-            return res.status(400).send({ status: false, message: "⚠️ Please enter a Email in the email-Field.", });
-        if (!(emailValidator.validate(email)))
-            return res.status(400).send({ status: false, message: "⚠️ Email should be in right format." })
-        if (!isValid(phone))                                       //=======Phone===========//
-            return res.status(400).send({ status: false, message: "⚠️ Please enter the phonefield." });
-        if (isPhone(phone))
-            return res.status(400).send({ status: false, message: "⚠️ please Enter a valid Indian Mobile number." })
-        if (!isValid(password))                                    //=========Password=======//
-            return res.status(400).send({ status: false, message: "⚠️ Please enter the password. " });
-        if (!(password.length >= 8 && password.length <= 15)) {
-            return res.status(400).send({ status: false, message: "⚠️ Password length is inappropriate, its length must be between 8 and 15 Both value is inclusive.", });
-        }
-        if (!data.address) {                                        //===========Address==>Shipping Address==>Billing Address
-            return res.status(400).send({ status: false, message: "⚠️ Address Required" })
-        }
-        let address = data.address.trim()
-        if (!data.address || !isNaN(data.address)) {
-            return res.status(400).send({ status: false, message: "⚠️ Valid address is required" })
-        }
-        try{
-          address = JSON.parse(data.address)
-        }catch(err){
-         return res.status(400).send({status: false,  message: `⚠️ Address should be in valid object format`})
-        }
-     
-        address = JSON.parse(data.address)
-        if (!address.shipping || !address.billing) {
-            return res.status(400).send({ status: false, message: "⚠️ shipping and billing address required" })
-        }
-        if (!address.shipping.street || !address.billing.street) {
-            return res.status(400).send({ status: false, message: "⚠️ Street Name is  Required " })
-        }
-        if (!address.shipping.city || !address.billing.city) {
-            return res.status(400).send({ status: false, message: "⚠️ City Name is  Required" })
-        }
-        if (!address.shipping.pincode || !address.billing.pincode) {
-            return res.status(400).send({ status: false, message: "⚠️ Pincode is  Required " })
-        }
-        let Sstreet = address.shipping.street
-        let Scity = address.shipping.city
-        let Spincode = parseInt(address.shipping.pincode)     //shipping---->street,city,pincode
-        if (Sstreet) {
-            if (isStreet(Sstreet)) {
-                return res.status(400).send({ status: false, message: " ❗ Please Enter Valid Street Name In Shipping." })
-            }
-        }
-        if (Scity) {
-            if (isCity(Scity)) {
-                return res.status(400).send({ status: false, message: " ❗ Please Enter Valid City Name In Shipping." })
-            }
-        }
-        if (Spincode) {
-            if (isPincode(Spincode)) {
-                return res.status(400).send({ status: false, message: " ❗ Please Enter Valid Pincode in Shipping." })
-            }
-        }
-        let Bstreet = address.billing.street
-        let Bcity = address.billing.city                          //Billing--->street,city,pincode
-        let Bpincode = parseInt(address.billing.pincode)
-        if (Bstreet) {
-            if (isStreet(Bstreet)) {
-                return res.status(400).send({ status: false, message: " ❗ Please Enter Valid Street Name In Shipping" })
-            }
-        }
-        if (Bcity) {
-            if (isCity(Bcity)) {
-                return res.status(400).send({ status: false, message: "  ❗ Plaese Enter Valid City Name In Shipping" })
-            }
-        }
-        if (Bpincode) {
-            if (isPincode(Bpincode)) {
-                return res.status(400).send({ status: false, message: " ❗ Plaese Enter Valid Pincode In Shipping" })
-            }
-        }
-        data.address = address
+        if(!address.shipping) error.shippingError = "enter the mandatory shipping address";
+        if(!address.billing) error.billingError = "enter the mandatory billing address";
+        if(address.shipping && (isStreet(address.shipping.street) !== true)) error.ShippingstreetError = isStreet(address.shipping.street); 
+        if(address.shipping && (isCity(address.shipping.city) !== true)) error.ShippingcityError = isCity(address.shipping.city); 
+        if(address.shipping && (isPincode(address.shipping.pincode) !== true)) error.ShippingpincodeError = isPincode(address.shipping.pincode); 
+        if(address.billing && (isStreet(address.billing.street) !== true)) error.billingstreetError = isStreet(address.billing.street); 
+        if(address.billing && (isCity(address.billing.city) !== true)) error.billingcityError = isCity(address.billing.city); 
+        if(address.billing && (isPincode(address.billing.pincode) !== true)) error.billingpincodeError = isPincode(address.billing.pincode); 
 
-        let files = req.files                                     //======Profile Image========//
-        if (!files || (files && files.length === 0)) {
-            return res.status(400).send({ status: false, message: " ⚠️ Please Provide The Profile Image." });
-        }
-        if (!isImage(files[0].originalname))
-            return res.status(400).send({ status: false, message: " ⚠️ Please enter the Image in a Valid format." });
+        if(Object.keys(error).length > 0) return res.status(400).send({status:false, message:{error}})
+   
         let profileImage = await uploadFile(files[0])
-        const hash = bcrypt.hashSync(password, saltRounds);
+
+        const hash = bcrypt.hashSync(password, 10); // para1:password, para2:saltRound
 
         let checkEmail = await userModel.findOne({ email: email });         //======DB call For Uniqueness===//
         if (checkEmail) return res.status(400).send({ status: false, message: " ⚠️ This Email is already used." });
 
-        let CheckPhone = await userModel.findOne({ phone: phone });
-        if (CheckPhone) return res.status(400).send({ status: false, message: " ⚠️ phone Number should be Unique." });
-
+        const lastTenNum = phone.slice(phone.length-10);
+        let CheckPhone = await userModel.findOne({phone: new RegExp(lastTenNum + '$')});
+        if (CheckPhone) return res.status(400).send({ status: false, message: "phone Number should be Unique ⚠️" });
 
         let userregister = { fname, lname, email, profileImage, phone, password: hash, address }
         const userData = await userModel.create(userregister);
         return res.status(201).send({ status: true, message: "User created successfully✅🟢", data: userData });
     } catch (err) {
+        console.log(err)
         return res.status(500).send({ status: false, message: err.message });
     }
 };

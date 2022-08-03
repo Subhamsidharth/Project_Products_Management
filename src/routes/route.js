@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
-const {updateCart, createCart}= require("../controllers/cartController")
-const productController = require("../controllers/productController")
-const { authorisation, authentication } = require("../middlewares/auth")
-const { validateUserPut, validateProduct } = require("../middlewares/validation")
+const { authorisation, authentication } = require("../middlewares/auth");
+const { validateUserPut, validateProduct } = require("../middlewares/validation");
+const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController");
+const productController = require("../controllers/productController");
+const {createCart, updateCart, getCart, deleteCart}= require("../controllers/cartController");
+
 
 
 
@@ -23,8 +24,11 @@ router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProduct)
 
 //===============================================================================
-router.post("/users/:userId/cart",createCart)
-router.put("/users/:userId/cart",authentication,authorisation,updateCart);
+router.post("/users/:userId/cart",createCart)   //only authentication required(TC)
+router.put("/users/:userId/cart", updateCart); //authentication + authorisation (TC)
+router.get('/users/:userId/cart',getCart);  //authentication + authorisation (TC)
+router.delete('/users/:userId/cart',deleteCart) //authentication + authorisation (TC)
+
 
 
 //--------------------------------------------------------------------------
