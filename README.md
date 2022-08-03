@@ -294,7 +294,13 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 - Make sure the userId in params and in JWT token match.
 - Make sure the user exist.
 - Get product(s) details in response body.
-- Check if the productId exists and is not deleted before updating the cart.
+# Check if the productId exists and is not deleted before updating the cart. 
+          1. when product deleted from collection before the update request?
+              => when we make db call in productModel to check price => findOne({_id:productId, isDeleted:false}) => null or product
+              -> that time if no product found -> send error msg 
+          2. when product deleted/removed from cart before the request?
+              => in such case we will not find that product in [items array] 
+              -> this product already removed from cart or not in the cart
 - __Response format__
   - _**On success**_ - Return HTTP status 200. Also return the updated cart document. The response should be a JSON object like [this](#successful-response-structure)
   - _**On error**_ - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
