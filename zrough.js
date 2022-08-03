@@ -139,4 +139,8 @@ test()
         return res.status(500).send({ status: false, error: error.message })
     }
 }
+//---
+   if (address[0] != "{" || address[address.length - 1] != "}") {
+            return res.status(400).send({ status: false, message: "⚠️ adress should be valid object" })
+        }
 */

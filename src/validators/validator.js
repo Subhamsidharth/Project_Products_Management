@@ -12,6 +12,9 @@ const isValidRequestBody = function (requestBody) {
 const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
+const isValidStatus = function(status) {
+    return ['pending', 'cancelled', 'completed'].indexOf(status) !== -1
+}
 // const isValidScripts = function (title) {c
 //     const scriptRegex = /^(?![0-9]*$)[A-Za-z0-9\s\-_,\.;:()]+$/
 //     return scriptRegex.test(title)
@@ -136,4 +139,4 @@ function trimAndUpperCase(x){
 module.exports = { 
     isValid, isValidObjectId, isValidRequestBody,isFname, isLname, isEmail, 
     isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase, 
-    isImage, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet, priceRegex}
+    isImage,isValidStatus, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet, priceRegex}

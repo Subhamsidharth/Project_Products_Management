@@ -164,8 +164,7 @@ const updateCart = async (req, res) => {
         }
     
     }
-  
-    catch (error) {
+      catch (error) {
         return res.status(500).send({ status: false, msg: error })
     }
 }
