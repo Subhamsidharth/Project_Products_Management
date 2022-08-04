@@ -32,7 +32,7 @@ module.exports.authentication= async function (req, res, next) {
   }
 };
 
-//----------------------------------------------------------------------------------------------------
+//------------------------------------Authorisation----------------------------------------------------------------//
 module.exports.authorisation = async function(req, res, next){     //userId from params
   try{
       const userId = req.params.userId;
@@ -53,3 +53,5 @@ module.exports.authorisation = async function(req, res, next){     //userId from
    
     // token.split(" "); => ["Bearer", "eyyyyyyyyyyyyyyyyy"]
     // token = arr[1]
+
+    

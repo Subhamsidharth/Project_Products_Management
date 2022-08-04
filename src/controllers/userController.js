@@ -8,8 +8,7 @@ const { isValid, isValidObjectId, isValidRequestBody, isImage,isStreet,isCity, i
 const {isEmail, isPassword, removeSpaces, trimAndUpperCase } = require('../validators/validateUser');
 const {isImageFile } = require('../validators/validateProduct');
 
-
-//------------------------------------Post Register Api-------------------------------------------------
+//==============================================Create User||Post Api==============================================================//
 const createUser = async function (req, res) {
     try {
         let { fname, lname, email, phone, password, address } = req.body;
@@ -47,14 +46,13 @@ const createUser = async function (req, res) {
 
         const hash = bcrypt.hashSync(password, 10); // para1:password, para2:saltRound
 
-        let checkEmail = await userModel.findOne({ email: email });
-        if (checkEmail) return res.status(400).send({ status: false, message: "This Email is already used. ⚠️" });
+        let checkEmail = await userModel.findOne({ email: email });         //======DB call For Uniqueness===//
+        if (checkEmail) return res.status(400).send({ status: false, message: " ⚠️ This Email is already used." });
 
         const lastTenNum = phone.slice(phone.length-10);
         let CheckPhone = await userModel.findOne({phone: new RegExp(lastTenNum + '$')});
         if (CheckPhone) return res.status(400).send({ status: false, message: "phone Number should be Unique ⚠️" });
 
-       
         let userregister = { fname, lname, email, profileImage, phone, password: hash, address }
         const userData = await userModel.create(userregister);
         return res.status(201).send({ status: true, message:"User created successfully" , data: userData });       //"User created successfully✅🟢"
@@ -68,7 +66,7 @@ const createUser = async function (req, res) {
 
 //---------------------------------------LogIn----------------------------------------------------------------------------
 const userLogin = async (req, res) => {
-    try {
+    try {                                                                    // >> Validator
         const body = req.body
         const { email, password } = body
         if (!isValidRequestBody(body)) {
@@ -105,56 +103,63 @@ const userLogin = async (req, res) => {
             return res.status(400).send({ status: false, message: "Invalid credentials. ❗" });
         }
     } catch (error) {
-        return res.status(500).send({ status: false, message:error.message });
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message });
     }
 };
-
-//------------------------------------------------GetApi-----------------------------------------------
+//======================================Get User Api===============================================//
 // Allow an user to fetch details of their profile.
 // Make sure that userId in url param and in token is same
-const getUserDetail = async function (req, res) {
+const getUserDetail = async function (req, res) {                             // >> Validator
 
     try {
         let userIdParams = req.params.userId
 
         if(!userIdParams || !userIdParams.trim()) return res.status(400).send({status:false, message:"enter userId in url path"});
         if (!isValidObjectId(userIdParams))
-            return res.status(400).send({ status: false, message: "User Id is Not Valid" })
-            if (userIdParams !== req.userId )
-            return res.status(403).send({ Status: false, message: "UserId and token didn't Match. ⚠️" });
+            return res.status(400).send({ status: false, message: "⚠️ User Id is Not Valid" })
+        if (userIdParams !== req.userId)
+            return res.status(403).send({ Status: false, message: "⚠️ UserId and token didn't Match." });
+
 
         const findUserDetail = await userModel.findOne({ _id: userIdParams })
-        if (!findUserDetail) return res.status(404).send({ status: false, message: "No User Exist" })
+        if (!findUserDetail) return res.status(404).send({ status: false, message: "🚫❗ No User Exist" })
 
-        return res.status(200).send({ status: true, message: "User profile details", data: findUserDetail })
+        return res.status(200).send({ status: true, message: "Yahooo...User profile detail found♻. 🟢", data: findUserDetail })
     } catch (error) {
+        console.log(error)
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-//--------------------------------------------------------Update Api-----------------------------------------------------
-const updateUser = async function(req, res){                            //validateUser >> authentication >> authorisation >> updateUser
-    const data = req.body;
+//=========================================Update User Api====================================================================//
+const updateUser = async function (req, res) {                            //validateUser >> authentication >> authorisation >> updateUser
+    try {
+        const data = req.body;
     const userId = req.params.userId
 
     const objUpdate = req.objUpdate;
-    const arrFiles = req.files;      
-    if(arrFiles && arrFiles.length !== 0){
-        if(!isImage(arrFiles[0].originalname)) return res.status(400).send({status:false, message: "invalid format of the profile image"});
+    const arrFiles = req.files;
+    if (arrFiles && arrFiles.length !== 0) {
+        if (!isImage(arrFiles[0].originalname)) return res.status(400).send({ status: false, message: "⚠️ invalid format of the profile image" });
         const imageUrl = await uploadFile(arrFiles[0]);
         objUpdate.profileImage = imageUrl;
     }
-    if(data.password){
+    if (data.password) {
         const newPassword = await bcrypt.create(data.password, 10)
         objUpdate.password = newPassword;
-    };                                                                    
+    };
 
-    if(Object.keys(objUpdate).length === 0) return res.status(400).send({status:false, message:"cannot process the update with empty data"})
-    
-    const updatedData = await userModel.findOneAndUpdate({_id:userId},{$set:objUpdate},{new:true});
-    return res.status(200).send({status:true, message:"User profile updated", data:updatedData})
+    if (Object.keys(objUpdate).length === 0) return res.status(400).send({ status: false, message: "⚠️ cannot process the update with empty data" })
+
+    const updatedData = await userModel.findOneAndUpdate({ _id: userId }, { $set: objUpdate }, { new: true });
+    return res.status(200).send({ status: true, message: "User profile updated.✔🟢✔", data: updatedData })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
+    }      
 }
 
 
-module.exports = { createUser, userLogin, getUserDetail,updateUser }
+module.exports = { createUser, userLogin, getUserDetail, updateUser }
 
 

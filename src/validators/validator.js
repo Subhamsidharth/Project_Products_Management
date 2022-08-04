@@ -12,6 +12,9 @@ const isValidRequestBody = function (requestBody) {
 const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
+// const isValidStatus = function(status) {
+//     return ['pending', 'cancelled', 'completed'].indexOf(status) !== -1
+// }
 // const isValidScripts = function (title) {c
 //     const scriptRegex = /^(?![0-9]*$)[A-Za-z0-9\s\-_,\.;:()]+$/
 //     return scriptRegex.test(title)
@@ -130,10 +133,15 @@ function removeSpaces(x){
 function trimAndUpperCase(x){
     return x.split(" ").filter((y)=> y).map((z)=> z = z.charAt(0).toUpperCase() + z.slice(1)).join(" ");
 }
+function isBoolean(x){
+    // if(x===undefined || x===null || x==="") return "mandatory FreeisFreeShipping is missing";
+    if(x!= 'true' && x!= 'false' && typeof x !== "boolean") return "invalid isFreeShipping value, it must be a Boolean";
+    return true;
+}
 
 
 
 module.exports = { 
     isValid, isValidObjectId, isValidRequestBody,isFname, isLname, isEmail, 
     isPhone, isPassword, isStreet, isCity, isPincode, removeSpaces, trimAndUpperCase, 
-    isImage, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet, priceRegex}
+    isImage,isBoolean, nameRegex, emailRegex, mobileRegex,validateCity,validatePincode,validateStreet, priceRegex}
