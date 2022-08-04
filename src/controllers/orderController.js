@@ -52,3 +52,65 @@ const createOrder = async (req, res)=>{ //authentication >> authotrisation >> cr
 
 
 module.exports.createOrder = createOrder;
+
+/*
+updateOrder(assuming cancellable:true)
+#inDoc      #inReqBody  #afterResponse
+
+pending     completed   completed       ✔🟢
+pending     cancelled   cancelled       ?possible
+
+completed   cancelled   cancelled       ✔🟢
+completed   pending     pending         ?err
+
+cancelled   pending     pending         ?err
+cancelled   completed   completed       ?err
+*/
+
+// function checkStatus(existStatus, cancValue, reqStatus){
+//     if(cancValue == true){
+//         if(existStatus === "pending"){
+//             if(reqStatus === "pending") return false
+//             else return true
+//         }
+//         if(existStatus === "completed"){
+//             if(reqStatus === "cancelled") return true
+//             else return false
+//         }
+//         return false    
+//     }
+//     if(cancValue == false){
+//         if(existStatus === "pending" && (reqStatus === "completed")) return true
+//         else return false
+//     }
+// }
+
+//after re.body
+// if(cancellable === "true") cancellable = true;
+// if(cancellable === "false") cancellable = false;
+
+function checkStatus(existStatus, cancValue, reqStatus){
+    if(cancValue == true){
+        if(existStatus === "pending" && ["cancelled", "completed"].includes(reqStatus)) return true
+        if(existStatus === "completed" && (reqStatus === "cancelled")) return true
+    }       
+    if(cancValue == false && existStatus === "pending" && (reqStatus === "completed")) return true
+     return false
+}
+
+// if(!checkStatus(order.status, order.cancellable, status)) return res.status(400).send({status:false, message:`status : ${status} cannot be updated after this status :${order.status}`})
+console.log(checkStatus( "pending", true, "completed",));
+console.log(checkStatus( "pending", true, "pending",));
+console.log(checkStatus( "cancelled", true, "pending",));
+console.log(checkStatus( "pending", false, "completed",));
+console.log(checkStatus( "pending", false, "pending",));
+console.log(checkStatus( "cancelled", false, "pending",));
+console.log(checkStatus( "pending", true, "cancelled",));
+
+
+
+console.log("false" == false)
+console.log("true" == true)
+let cancellable = "false"
+
+console.log(cancellable, typeof cancellable)
