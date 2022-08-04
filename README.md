@@ -292,7 +292,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 - Make sure that cart exist.
 - Key 'removeProduct' denotes whether a product is to be removed({removeProduct: 0}) or its quantity has to be decremented by 1({removeProduct: 1}).
 - Make sure the userId in params and in JWT token match.
-- Make sure the user exist
+- Make sure the user exist.
 - Get product(s) details in response body.
 - Check if the productId exists and is not deleted before updating the cart.
 - __Response format__

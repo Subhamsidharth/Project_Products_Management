@@ -40,7 +40,7 @@ module.exports.authorisation = async function(req, res, next){     //userId from
       if(!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).send({status:false, message:"enter a valid user id in url path"});
 
       const loggedInUserId = req.token.userId;
-      if(loggedInUserId !== userId) return res.status(403).send({status:false, message:`user ${loggedInUserId} is not authorised to update profile of ${userId}`});
+      if(loggedInUserId !== userId) return res.status(403).send({status:false, message:`user ${loggedInUserId} is not authorised to make changes in ${userId}`});
       next();
 
   }catch(err){

@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController")
-const productController = require("../controllers/productController")
-const { authorisation, authentication } = require("../middlewares/auth")
-const { validateUserPut, validateProduct } = require("../middlewares/validation")
-const {createCart, deleteCart, getCart} = require('../controllers/cartController.js');
-const{createOrder}=require("../controllers/orderController")
+const { authorisation, authentication } = require("../middlewares/auth");
+const { validateUserPut, validateProduct } = require("../middlewares/validation");
+const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController");
+const productController = require("../controllers/productController");
+const {createCart, updateCart, getCart, deleteCart}= require("../controllers/cartController");
+const {createOrder}=require("../controllers/orderController")
+const{updateOrder}=require("../controllers/orderController")
+
+
 
 
 //APIS for user
@@ -22,14 +25,15 @@ router.get("/products/:productId", productController.getProductsById)
 router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProduct)
 
-//APIs for cart
-router.post('/users/:userId/cart', createCart);          //POST /users/:userId/cart (Add to cart)
-router.get('/users/:userId/cart',getCart)                // Get/users/:userId/cart
-router.delete('/users/:userId/cart',authorisation, authentication,deleteCart)          //delete/users/:userId/cart
+//===============================================================================
+router.post("/users/:userId/cart",createCart)   //only authentication required(TC)
+router.put("/users/:userId/cart", updateCart); //authentication + authorisation (TC)
+router.get('/users/:userId/cart',getCart);  //authentication + authorisation (TC)
+router.delete('/users/:userId/cart',deleteCart) //authentication + authorisation (TC)
 
 //APIs for order
-router.post("/users/:userId/orders",createOrder)     // POST /users/:userId/orders
-
+//router.post("/users/:userId/orders",createOrder)     // POST /users/:userId/orders
+router.put('/users/:userId/orders',updateOrder)      //PUT /users/:userId/orders
 
 //--------------------------------------------------------------------------
 router.all("/**", function (req, res) {
