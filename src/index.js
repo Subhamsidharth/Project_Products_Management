@@ -13,9 +13,9 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(multer().any());    //without it req.files = undefined , if file missing in req => req.files = []
 app.use('/', route);
 
+require("dotenv").config()
 
-
-mongoose.connect('mongodb+srv://RinkiPradhan:moShtmwBC2cEopn2@cluster0.xs93j.mongodb.net/Group70Database', {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true
 })
 .then(function(){
