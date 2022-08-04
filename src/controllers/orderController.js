@@ -51,66 +51,61 @@ const createOrder = async (req, res)=>{ //authentication >> authotrisation >> cr
 }
 
 
-module.exports.createOrder = createOrder;
 
-/*
-updateOrder(assuming cancellable:true)
-#inDoc      #inReqBody  #afterResponse
+// ## PUT /users/:userId/orders
+// - Updates an order status
+// - Make sure the userId in params and in JWT token match.
+// - Make sure the user exist
+// - Get order id in request body
+// - Make sure the order belongs to the user
+// - Make sure that only a cancellable order could be canceled. Else send an appropriate error message and response.
 
-pending     completed   completed       ✔🟢
-pending     cancelled   cancelled       ?possible
 
-completed   cancelled   cancelled       ✔🟢
-completed   pending     pending         ?err
+const updateOrder = async function (req, res) { //authentication >> authotrisation >> updateOrder
+    try {
+        let userId = req.params.userId
+        let { status, orderId } = req.body
 
-cancelled   pending     pending         ?err
-cancelled   completed   completed       ?err
-*/
+        if(!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "userId is invalid" })
+        if(!isValidObjectId(orderId)) return res.status(400).send({ status: false, message: "orderId is invalid" });
+        if(!status) return res.status(400).send({status:false, message:"please enter the status to update"})
 
-// function checkStatus(existStatus, cancValue, reqStatus){
-//     if(cancValue == true){
-//         if(existStatus === "pending"){
-//             if(reqStatus === "pending") return false
-//             else return true
-//         }
-//         if(existStatus === "completed"){
-//             if(reqStatus === "cancelled") return true
-//             else return false
-//         }
-//         return false    
-//     }
-//     if(cancValue == false){
-//         if(existStatus === "pending" && (reqStatus === "completed")) return true
-//         else return false
-//     }
-// }
+        const arr = ["pending", "completed", "cancelled"]
+        if(status && (!arr.includes(status))) return res.status(400).send({ status: false, message: `status should be in ${arr}`})
 
-//after re.body
-// if(cancellable === "true") cancellable = true;
-// if(cancellable === "false") cancellable = false;
+        let findUserId = await userModel.findById({ _id: userId })
+        if (!findUserId) return res.status(404).send({ status: false, message: "this userid is not present in DB" })
 
-function checkStatus(existStatus, cancValue, reqStatus){
-    if(cancValue == true){
-        if(existStatus === "pending" && ["cancelled", "completed"].includes(reqStatus)) return true
-        if(existStatus === "completed" && (reqStatus === "cancelled")) return true
-    }       
-    if(cancValue == false && existStatus === "pending" && (reqStatus === "completed")) return true
-     return false
+        let findOrderId = await orderModel.findById({ _id: orderId, isDeleted: false })
+        if (!findOrderId) return res.status(404).send({ status: false, message: "this Orderid is not present in DB" })
+        if (userId != findOrderId.userId) return res.status(404).send({ status: false, message: "this order is not belongs to the params user" })
+
+        function checkStatus(existStatus, cancValue, reqStatus) {
+            if (cancValue == true) {
+                if (existStatus === "pending" && ["cancelled", "completed"].includes(reqStatus)) return true
+                // if (existStatus === "completed" && (reqStatus === "cancelled")) return true  //after discussion with friends
+            }
+            if (cancValue == false && existStatus === "pending" && (reqStatus === "completed")) return true
+            return false
+        }
+
+        if (!checkStatus(findOrderId.status, findOrderId.cancellable, status)) return res.status(400).send({ status: false, message: `status : ${status} cannot be updated after this status :${findOrderId.status}`})
+
+        // let objUpdate = {}
+        // if (status) objUpdate.status = status // not required
+
+        let updateOrder = await orderModel.findByIdAndUpdate(findOrderId._id, status, { new: true })
+        return res.status(200).send({ status: true, message:"Success", data: updateOrder })
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
 }
 
-// if(!checkStatus(order.status, order.cancellable, status)) return res.status(400).send({status:false, message:`status : ${status} cannot be updated after this status :${order.status}`})
-console.log(checkStatus( "pending", true, "completed",));
-console.log(checkStatus( "pending", true, "pending",));
-console.log(checkStatus( "cancelled", true, "pending",));
-console.log(checkStatus( "pending", false, "completed",));
-console.log(checkStatus( "pending", false, "pending",));
-console.log(checkStatus( "cancelled", false, "pending",));
-console.log(checkStatus( "pending", true, "cancelled",));
 
 
 
-console.log("false" == false)
-console.log("true" == true)
-let cancellable = "false"
+module.exports = {createOrder,updateOrder}
 
-console.log(cancellable, typeof cancellable)
+
+

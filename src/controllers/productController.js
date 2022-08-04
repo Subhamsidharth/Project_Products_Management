@@ -108,6 +108,7 @@ const updateProduct = async function (req, res) {
          if (!isImage(files[0].originalname)) return res.status(400).send({ status: false, message: "Please enter the Image in a Valid format. ⚠️" });
          productImage = await uploadFile(files[0])
       }
+      //duplicate title
       let checkTitle = await productModel.findOne({ title: title });
       if (checkTitle) return res.status(400).send({ status: false, message: "This title is already used. ⚠️" });  //duplicate title
      
