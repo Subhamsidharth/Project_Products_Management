@@ -23,7 +23,7 @@ router.get("/products/:productId", productController.getProductsById)
 router.put("/products/:productId",productController.updateProduct)
 router.delete("/products/:productId",productController.deleteProduct)
 
-//===============================================================================
+//APIs for cart===============================================================================
 router.post("/users/:userId/cart",createCart)   //only authentication required(TC)
 router.put("/users/:userId/cart", updateCart); //authentication + authorisation (TC)
 router.get('/users/:userId/cart',getCart);  //authentication + authorisation (TC)
