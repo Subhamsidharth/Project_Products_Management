@@ -109,13 +109,13 @@ const updateCart = async (req, res) => { //tested=> pending, need rectification
         if (!userId) {
             return res.status(400).send({ status: false, message: "userid is required" })
         }
-        if (!isValidObjectId(userId)) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).send({ status: false, msg: "Invalid user id" })
         }
-        if (cartId && !isValidObjectId(cartId)) {
+        if (cartId && !mongoose.Types.ObjectId.isValid(cartId)) {
             return res.status(400).send({ status: false, msg: "Invalid CartId" })
         }
-        if (!isValidObjectId(productId)) {
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).send({ status: false, msg: "Invalid ProductId" })
         }
       

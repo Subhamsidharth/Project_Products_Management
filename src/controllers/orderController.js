@@ -1,7 +1,9 @@
 const cartModel = require("../models/cartModel")
 const userModel = require("../models/userModel")
 const orderModel = require("../models/orderModel")
-const {isValid,isValidObjectId,isValidRequestBody,isBoolean} = require("../validators/validator")
+const {isValid,isValidObjectId,isValidRequestBody,isBoolean} = require("../validators/validator");
+const { default: mongoose } = require("mongoose")
+
 
 // ### POST /users/:userId/orders
 // - Create an order for the user
@@ -12,60 +14,35 @@ const {isValid,isValidObjectId,isValidRequestBody,isBoolean} = require("../valid
 //   - _**On success**_ - Return HTTP status 200. Also return the order document. The response should be a JSON object like [this](#successful-response-structure)
 //   - _**On error**_ - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
 
-module.exports.createOrder = async (req, res)=>{
+const createOrder = async (req, res)=>{ //authentication >> authotrisation >> createOrder
     try {
         const userId = req.params.userId
-        let Body = req.body
+        let { cartId, cancellable } = req.body
 
-        if (!(isValidObjectId(userId))) {
-            return res.status(400).send({ status: false, message: "userId is not valid" });;
-        }
+        if (!isValidRequestBody(req.body))  return res.status(400).send({ status: false, message: "can't proceed the request with empty body" });
+        const error = {};
+        if(!mongoose.Types.ObjectId.isValid(userId))                              error['userId error']      =       "userId is not valid" ;
+        if (!isValid(cartId))                                                     error['cartId error']      =       "Please provide The cartId" 
+        if (cartId && !(mongoose.Types.ObjectId.isValid(cartId)))                 error['cartId error']      =       "cartId is not valid" ;
+        if (cancellable && !["true", "false", true, false].includes(cancellable)) error['cancellable error'] =       "cancellable value should be a Boolean";
+        if(Object.keys(error).length > 0) return res.status(400).send({status:false, message:error})
+
         const user = await userModel.findOne({ _id: userId })
-        if (!user) {
-           return res.status(400).send({ status: false, msg: "User not found" })
-        }
-      //----------------------Authorisation----------------------------------------------
-        if (!isValidRequestBody(Body)) {
-            return res.status(400).send({ status: false, message: "Please provide The Body" });
-        }
-        let { cartId, cancellable } = Body
-        if (!(isValidObjectId(cartId))) {
-            return res.status(400).send({ status: false, message: "cartId is not valid" });;
-        }
-        if (!isValid(cartId)) {
-            return res.status(400).send({ status: false, message: "Please provide The cartId" });
-        }
-        if(cancellable){
-        if (!isValid(cancellable)) {
-            return res.status(400).send({ status: false, message: "kuch vi vejoge kya" });
-        }
-        if (!isBoolean(cancellable)) {
-            return res.status(400).send({ status: false, message: "Status should be among 'True' & 'false'" });
-        }}
+        if (!user) return res.status(400).send({ status: false, msg: "User not found" });
+        
+        const cart = await cartModel.findOne({ _id: cartId });
+        if (!cart || !cart.items.length)  return res.status(404).send({ status: false, message: "cart does not exist with the provided cartId" })
+        if (cart.userId.toString() !== userId)  return res.status(403).send({ status: false, message: `you(${userId}) are not permitted to make order in others(${cart.userId}) cart`});
 
-        const cartDetails = await cartModel.findOne({ _id: cartId })
-        if (!(cartDetails.userId == userId)) {
-            return res.status(400).send({ status: false, message: "This Cart does not belong to You" });
+        const totalItems = cart.items.length
+        let totalQuantity = 0;
+        for (let i in cart.items) {totalQuantity += cart.items[i].quantity}
+        const orderData = {userId: userId, items: cart.items, totalPrice: cart.totalPrice, totalItems: totalItems, totalQuantity: totalQuantity, cancellable: cancellable}
 
-        }
-
-        if (!cartDetails) {
-            return res.status(400).send({ status: false, message: "cart not present" });
-        }
-
-        const totalItems = cartDetails.items.length
-        var totalQuantity = 0;
-        for (let i in cartDetails.items) {totalQuantity += cartDetails.items[i].quantity}
-        const orderData = {
-            userId: userId,
-            items: cartDetails.items,
-            totalPrice: cartDetails.totalPrice,
-            totalItems: totalItems,
-            totalQuantity: totalQuantity,
-            cancellable: cancellable,
-            }
-        const order = await orderModel.create(orderData)
-        return res.status(201).send({ status: true, msg: "Your Order Has Been Placed", data: order })
+        let order = await orderModel.create(orderData);
+        order = await orderModel.findById(order._id).populate({path:'items.productId', select:{title:1, price:1, productImage:1}})
+        await cartModel.updateOne({_id:cart._id}, {$set:{items:[], totalItems:0, totalPrice:0}})    //cart empty
+        return res.status(201).send({status: true, msg: "Your Order Has Been Placed", data: order})
     }
     catch (error) {
         console.log(error)
@@ -73,3 +50,5 @@ module.exports.createOrder = async (req, res)=>{
     }
 }
 
+
+module.exports.createOrder = createOrder;
