@@ -17,12 +17,12 @@ const createProduct = async function(req, res){
         style && (data.style = style);
         installments && (data.installments = installments);
 
-        const files = req.files;
+        const files = req.files; 
         const imageUrl = await uploadFile(files[0]);
         data.productImage = imageUrl
 
         const savedData = await productModel.create(data);
-        return res.status(201).send({status:true, data:savedData});
+        return res.status(201).send({status:true, message:"Success", data:savedData});
 
     } catch (err) {
         console.log(err);
@@ -116,7 +116,7 @@ const updateProduct = async function (req, res) {
       if (!findProductId) return res.status(404).send({ status: false, message: "productId is not present in Db" })
       if (findProductId.isDeleted) return res.status(404).send({ status: false, message: "this product is already deleted" });
 
-      let objUpdate = {};clear
+      let objUpdate = {};
       if(title)         objUpdate.title =          title;
       if(description)   objUpdate.description =    description;
       if(price)         objUpdate.price =          price;
