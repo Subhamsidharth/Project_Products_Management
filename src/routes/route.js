@@ -5,7 +5,7 @@ const { validateUserPut, validateProduct } = require("../middlewares/validation"
 const { createUser, userLogin, getUserDetail, updateUser } = require("../controllers/userController");
 const {createProduct,getProductsById,getProductsByQuery,updateProduct,deleteProduct} = require("../controllers/productController");
 const {createCart, updateCart, getCart, deleteCart}= require("../controllers/cartController");
-const{createOrder} =require("../controllers/orderController");
+const{createOrder,updateOrder} =require("../controllers/orderController");
 
 
 
@@ -31,9 +31,11 @@ router.get('/users/:userId/cart',authentication,authorisation,getCart);  //authe
 router.delete('/users/:userId/cart',authentication,authorisation,deleteCart) //authentication + authorisation (TC)
 
 //=================================================================================
-router.post("/users/:userId/orders",createOrder)
+router.post("/users/:userId/orders", authentication, authorisation, createOrder)
 
-
+//APIs for order
+router.post("/users/:userId/orders",createOrder)     // POST /users/:userId/orders
+router.put('/users/:userId/orders',updateOrder)      //PUT /users/:userId/orders
 
 //--------------------------------------------------------------------------
 router.all("/**", function (req, res) {

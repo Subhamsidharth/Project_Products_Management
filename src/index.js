@@ -27,3 +27,24 @@ mongoose.connect(process.env.MONGO_URL, {
 
 
 app.listen(process.env.PORT || 3000, function(){return console.log(`Express is running on port🤣 ${process.env.PORT || 3000}`)});
+//dotenv
+//.env
+
+/*
+updateOrder(assuming cancellable:true)
+#inDoc      #inReqBody  #afterResponse
+
+pending     completed   completed       ✔🟢
+pending     cancelled   cancelled       possible
+
+completed   cancelled   cancelled       ✔🟢
+completed   pending     pending         ?err
+
+cancelled   pending     pending         ?err
+cancelled   completed   completed       ?err
+
+is it order api or delivery api? => delivery
+is it order api or delivery api? => order, 
+
+*/
+//order to delivery
