@@ -1,3 +1,7 @@
+# ignore node_modules
 node_modules/
+#ignore zzz.js
 zzz.js
+#ignore zrough.js
+zrough.js
 
