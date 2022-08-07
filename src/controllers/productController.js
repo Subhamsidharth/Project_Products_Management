@@ -34,7 +34,10 @@ const createProduct = async function(req, res){
 //------------------------------------------2nd product api : GET /products-----------------------------------------------------------//
 const getProductsByQuery = async function(req, res){      
    try {
-      let {size, name, priceGreaterThan, priceLessThan, priceSort} = req.query;
+      let {size, name, priceGreaterThan, priceLessThan, priceSort, ...rest} = req.query
+     
+      if(Object.keys(rest).length >0) return res.status(400).send({status:false, message:"enter only valid filter key in queryParams such as size, name, priceGreaterThan, priceLessThan, priceSort"}) //must recheck
+
 
       const invalid = {};  //validations
       if(size) {   

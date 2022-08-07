@@ -68,7 +68,7 @@ function isInstallments(x){
 
 //image files = req.files
 function isImageFile(x){
-    if(x === undefined || x === null || x.length===0) return "mandatory productImage is missing";
+    if(x === undefined || x === null || x.length===0) return "mandatory Image is missing"; //rectified after test
     const name = x[0].originalname;
     const regEx = /\.(apng|avif|gif|jpg|jpeg|jfif|pjpeg|pjp|png|svg|webp)$/;    //source:https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
     const checkImage = name.match(regEx);
