@@ -128,7 +128,7 @@ const updateCart = async (req, res) => { //tested=> pending, need rectification
             return res.status(400).send({ status: false, message: "No Data For Update" })
         }
        
-        if(!removeProduct) return res.status(400).send({staus:false, message:"removeProduct is missing"});
+        if(removeProduct === undefined) return res.status(400).send({staus:false, message:"removeProduct is missing"});
         if(removeProduct!=0 && removeProduct!=1) return res.status(400).send({staus:false, message:"removeProduct must be 1 or 0"});
 
 
