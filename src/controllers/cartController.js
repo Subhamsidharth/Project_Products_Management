@@ -128,7 +128,7 @@ const updateCart = async (req, res) => { //tested=> pending, need rectification
             return res.status(400).send({ status: false, message: "No Data For Update" })
         }
        
-        if(!removeProduct) return res.status(400).send({staus:false, message:"removeProduct is missing"});
+        if(removeProduct === undefined) return res.status(400).send({staus:false, message:"removeProduct is missing"});
         if(removeProduct!=0 && removeProduct!=1) return res.status(400).send({staus:false, message:"removeProduct must be 1 or 0"});
 
 
@@ -155,14 +155,14 @@ const updateCart = async (req, res) => { //tested=> pending, need rectification
                     if (findCart.items[i].quantity > 0) {
                         const Data = await cartModel.findOneAndUpdate({ userId:userId }, { items: findCart.items, totalPrice: updatedPrice }, { new: true })
                         return res.status(200).send({ status: true, message: "Success", data: Data })
-                    }
+                    }                                                                                     //Item Removed
                     else {
                         const totalItems1 = findCart.totalItems - 1
                         findCart.items.splice(i, 1)
 
                         const data = await cartModel.findOneAndUpdate({userId:userId }, { items: findCart.items, totalItems: totalItems1, totalPrice: updatedPrice }, { new: true })
-                        return res.status(200).send({ status: true, message: "Success", data: data })
-
+                        return res.status(200).send({ status: true, message: "Success", data: data })  //Product Removed
+                                                                                                           
                     }
                 }
 
@@ -175,7 +175,7 @@ const updateCart = async (req, res) => { //tested=> pending, need rectification
                     const TotalItems = findCart.totalItems - 1
                     findCart.items.splice(i, 1)
                     const result = await cartModel.findOneAndUpdate({ userId:userId }, { items: findCart.items, totalItems: TotalItems, totalPrice: updatedPrice }, { new: true })
-                    return res.status(200).send({ status: true, message: "Success", data: result })
+                    return res.status(200).send({ status: true, message: "Success", data: result })   //Product Was Removed From The Cart
 
                 }
             }
@@ -260,3 +260,7 @@ find(...).
 /*
 model.findOne({}, undefined, { populate: {path: 'fooo', options: {strictPopulate: false}}, option: {strictPopulate: false}, })
 */
+
+// const arr0 = [1,2,3, [1,2]]
+// const arr11 = arr0;
+// const arr2 = [...arr0]

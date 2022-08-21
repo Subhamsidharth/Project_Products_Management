@@ -18,7 +18,7 @@ const orderSchema = new mongoose.Schema({
     deletedAt: Date,
     isDeleted: { type: Boolean, default: false },
 
-}, { timestamps: true })
+}, { timestamps: false })
 
 
 module.exports = mongoose.model("Order", orderSchema)
